@@ -21,15 +21,18 @@ const otpService_1 = require("../helpers/otpService");
 const OTP_EXPIRY_TIME = 30;
 const JWT_SECRET = process.env.JWT_SECRET || 'myjwtsecret';
 class EmployeeService {
+    constructor(employeeRepository) {
+        this.employeeRepository = employeeRepository;
+    }
     signup(employeeData) {
         return __awaiter(this, void 0, void 0, function* () {
-            const existingEmployee = yield employeeRepository_1.employeeRepository.findEmployeeByEmail(employeeData.email);
+            const existingEmployee = yield this.employeeRepository.findEmployeeByEmail(employeeData.email);
             if (existingEmployee) {
                 return { status: 400, message: 'This user already exists' };
             }
             const salt = yield bcryptjs_1.default.genSalt(10);
             employeeData.password = yield bcryptjs_1.default.hash(employeeData.password, salt);
-            const employee = yield employeeRepository_1.employeeRepository.createEmployee(Object.assign(Object.assign({}, employeeData), { is_verified: false }));
+            const employee = yield this.employeeRepository.createEmployee(Object.assign(Object.assign({}, employeeData), { is_verified: false }));
             const otp = this.generateOtp();
             yield otpService_1.otpService.sendOtp(employee.email, otp);
             console.log(otp, ': is your OTP');
@@ -47,17 +50,14 @@ class EmployeeService {
                 const decoded = jsonwebtoken_1.default.verify(otpToken, JWT_SECRET);
                 const email = decoded.email;
                 const storedOtp = decoded.otp;
-                // Check if the stored OTP matches the provided OTP
                 if (storedOtp !== otp) {
                     console.error('OTP mismatch:', { storedOtp, receivedOtp: otp });
                     throw new Error('Otp invalid');
                 }
-                // Update the employee's verification status
-                yield employeeRepository_1.employeeRepository.updateEmployeeVerificationStatus(email, true);
+                yield this.employeeRepository.updateEmployeeVerificationStatus(email, true);
                 return { message: 'Employee verified successfully' };
             }
             catch (err) {
-                // Handle specific JWT errors
                 if (err instanceof jsonwebtoken_1.default.TokenExpiredError) {
                     console.error('Token expired:', err.message);
                     throw new Error('Otp expired');
@@ -67,9 +67,8 @@ class EmployeeService {
                     throw new Error('Invalid token');
                 }
                 else {
-                    // Log any other error
                     console.error('Unknown error during OTP verification:', err);
-                    throw new Error('Otp invalid'); // Make sure this is caught by the controller
+                    throw new Error('Otp invalid');
                 }
             }
         });
@@ -77,7 +76,7 @@ class EmployeeService {
     resendOtp(email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const employee = yield employeeRepository_1.employeeRepository.findEmployeeByEmail(email);
+                const employee = yield this.employeeRepository.findEmployeeByEmail(email);
                 if (!employee) {
                     throw new Error('Employee not found');
                 }
@@ -96,7 +95,7 @@ class EmployeeService {
     }
     employeeLogin(email, password) {
         return __awaiter(this, void 0, void 0, function* () {
-            const employee = yield employeeRepository_1.employeeRepository.findEmployeeByEmail(email);
+            const employee = yield this.employeeRepository.findEmployeeByEmail(email);
             if (!employee) {
                 throw new Error('Employee does not exists');
             }
@@ -116,7 +115,7 @@ class EmployeeService {
     }
     getEmployeeDetails(employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield employeeRepository_1.employeeRepository.findEmployeeById(employeeId);
+            const result = yield this.employeeRepository.findEmployeeById(employeeId);
             if (!result) {
                 throw new Error('Timeslot not found');
             }
@@ -156,9 +155,9 @@ class EmployeeService {
                 const endHour = parseInt(endTime.split(':')[0], 10);
                 while (currentHour < endHour) {
                     const timeSlot = `${date} ${this.formatTime(currentHour)} - ${this.formatTime(currentHour + 1)}`;
-                    const exists = yield employeeRepository_1.employeeRepository.findSlot(employeeId, date, this.formatTime(currentHour), this.formatTime(currentHour + 1));
+                    const exists = yield this.employeeRepository.findSlot(employeeId, date, this.formatTime(currentHour), this.formatTime(currentHour + 1));
                     if (!exists) {
-                        yield employeeRepository_1.employeeRepository.newTimeslot(employeeId, date, this.formatTime(currentHour), this.formatTime(currentHour + 1));
+                        yield this.employeeRepository.newTimeslot(employeeId, date, this.formatTime(currentHour), this.formatTime(currentHour + 1));
                         slots.push(timeSlot);
                     }
                     currentHour++;
@@ -172,7 +171,7 @@ class EmployeeService {
     }
     getTimeSlots(employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const timeSlots = yield employeeRepository_1.employeeRepository.findTimeslotById(employeeId);
+            const timeSlots = yield this.employeeRepository.findTimeslotById(employeeId);
             if (!timeSlots) {
                 throw new Error('Timeslot not found');
             }
@@ -182,7 +181,7 @@ class EmployeeService {
     deleteSlotsByEmployeeId(employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield employeeRepository_1.employeeRepository.deleteMany(employeeId);
+                return yield this.employeeRepository.deleteMany(employeeId);
             }
             catch (error) {
                 if (error instanceof Error) {
@@ -194,7 +193,7 @@ class EmployeeService {
     deleteSlotsBySlotId(slotId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield employeeRepository_1.employeeRepository.deleteById(slotId);
+                return yield this.employeeRepository.deleteById(slotId);
             }
             catch (error) {
                 if (error instanceof Error) {
@@ -204,4 +203,4 @@ class EmployeeService {
         });
     }
 }
-exports.employeeService = new EmployeeService();
+exports.employeeService = new EmployeeService(employeeRepository_1.employeeRepository);

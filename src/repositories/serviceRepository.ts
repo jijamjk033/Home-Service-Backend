@@ -23,7 +23,7 @@ class ServiceRepository implements IServiceRepository{
         if (!service) {
             throw new Error('Service not found');
         }
-        return service.toObject() as unknown as Iservices;
+        return service as unknown as Iservices;
     }
 
     async updateById(id: string, updateData: { name: string; price: number; description: string; category: string; image: string }) {

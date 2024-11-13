@@ -18,22 +18,26 @@ class CategoryRepository {
                 name: categoryName,
                 image: imageUrl,
             });
-            return yield category.save();
+            const saved = yield category.save();
+            return saved.toObject();
         });
     }
     findById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return categoryModel_1.Category.findById(id);
+            const category = yield categoryModel_1.Category.findById(id).lean();
+            return category;
         });
     }
     findAll() {
         return __awaiter(this, void 0, void 0, function* () {
-            return categoryModel_1.Category.find().exec();
+            const categories = yield categoryModel_1.Category.find().lean().exec();
+            return categories;
         });
     }
     updateById(id, updateData) {
         return __awaiter(this, void 0, void 0, function* () {
-            return categoryModel_1.Category.findByIdAndUpdate(id, updateData, { new: true });
+            const updatedCategory = yield categoryModel_1.Category.findByIdAndUpdate(id, updateData, { new: true }).lean();
+            return updatedCategory;
         });
     }
     delete(id) {

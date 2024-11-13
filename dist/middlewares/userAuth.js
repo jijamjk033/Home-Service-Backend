@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.authMiddleware = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
-const userRepository_1 = require("../repositories/userRepository"); // Fix the import
+const userRepository_1 = require("../repositories/userRepository");
 dotenv_1.default.config();
 const jwtSecret = process.env.JWT_SECRET || 'myjwtsecret';
 class AuthMiddleware {

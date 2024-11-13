@@ -21,22 +21,28 @@ class ServiceRepository {
                 price: price,
                 description: description,
             });
-            return yield service.save();
+            const saved = yield service.save();
+            return saved.toObject();
         });
     }
     findById(categoryId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield serviceModel_1.Service.find({ category: categoryId });
+            const service = yield serviceModel_1.Service.find({ category: categoryId });
+            return service;
         });
     }
     findByServiceId(serviceId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield serviceModel_1.Service.find({ _id: serviceId });
+            const service = yield serviceModel_1.Service.findOne({ _id: serviceId });
+            if (!service) {
+                throw new Error('Service not found');
+            }
+            return service;
         });
     }
     updateById(id, updateData) {
         return __awaiter(this, void 0, void 0, function* () {
-            return serviceModel_1.Service.findByIdAndUpdate(id, updateData, { new: true });
+            yield serviceModel_1.Service.findByIdAndUpdate(id, updateData, { new: true });
         });
     }
     delete(id) {

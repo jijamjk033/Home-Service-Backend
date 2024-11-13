@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 
 export interface IAddress{
+    _id: string;
     address:string,
     locality:string,
     city:string,

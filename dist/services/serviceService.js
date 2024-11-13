@@ -12,15 +12,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.serviceService = void 0;
 const serviceRepository_1 = require("../repositories/serviceRepository");
 class ServicesServices {
+    constructor(repository) {
+        this.repository = repository;
+    }
     addService(serviceName, price, description, categoryId, imageUrl) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield serviceRepository_1.serviceRepository.addService(serviceName, price, description, categoryId, imageUrl);
+            const result = yield this.repository.addService(serviceName, price, description, categoryId, imageUrl);
             return result;
         });
     }
     getServiceById(categoryId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const service = yield serviceRepository_1.serviceRepository.findById(categoryId);
+            const service = yield this.repository.findById(categoryId);
             if (!service) {
                 throw new Error('Service not found');
             }
@@ -29,7 +32,7 @@ class ServicesServices {
     }
     getServiceByServiceId(serviceId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const service = yield serviceRepository_1.serviceRepository.findByServiceId(serviceId);
+            const service = yield this.repository.findByServiceId(serviceId);
             if (!service) {
                 throw new Error('Service not found');
             }
@@ -38,7 +41,7 @@ class ServicesServices {
     }
     updateServiceById(serviceId, serviceName, price, description, categoryId, imageUrl) {
         return __awaiter(this, void 0, void 0, function* () {
-            const updatedService = yield serviceRepository_1.serviceRepository.updateById(serviceId, {
+            const updatedService = yield this.repository.updateById(serviceId, {
                 name: serviceName,
                 price: price,
                 description: description,
@@ -50,12 +53,12 @@ class ServicesServices {
     }
     deleteServiceById(serviceId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const service = yield serviceRepository_1.serviceRepository.findById(serviceId);
+            const service = yield this.repository.findById(serviceId);
             if (!service) {
                 throw new Error('Service not found');
             }
-            yield serviceRepository_1.serviceRepository.delete(serviceId);
+            yield this.repository.delete(serviceId);
         });
     }
 }
-exports.serviceService = new ServicesServices();
+exports.serviceService = new ServicesServices(serviceRepository_1.serviceRepository);

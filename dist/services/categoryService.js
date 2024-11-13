@@ -12,20 +12,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.categoryService = void 0;
 const categoryRepository_1 = require("../repositories/categoryRepository");
 class CategoryService {
+    constructor(categoryRepository) {
+        this.categoryRepository = categoryRepository;
+    }
     addCategory(categoryName, imageUrl) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield categoryRepository_1.categoryRepository.addCategory(categoryName, imageUrl);
+            const result = yield this.categoryRepository.addCategory(categoryName, imageUrl);
             return result;
         });
     }
     getAllCategories() {
         return __awaiter(this, void 0, void 0, function* () {
-            return categoryRepository_1.categoryRepository.findAll();
+            return this.categoryRepository.findAll();
         });
     }
     getCategoryById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const category = yield categoryRepository_1.categoryRepository.findById(id);
+            const category = yield this.categoryRepository.findById(id);
             if (!category) {
                 throw new Error('Category not found');
             }
@@ -34,7 +37,7 @@ class CategoryService {
     }
     updateCategoryById(id, categoryName, imageUrl) {
         return __awaiter(this, void 0, void 0, function* () {
-            const updatedCategory = yield categoryRepository_1.categoryRepository.updateById(id, {
+            const updatedCategory = yield this.categoryRepository.updateById(id, {
                 name: categoryName,
                 image: imageUrl,
             });
@@ -43,12 +46,12 @@ class CategoryService {
     }
     deleteCategoryById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const category = yield categoryRepository_1.categoryRepository.findById(id);
+            const category = yield this.categoryRepository.findById(id);
             if (!category) {
                 throw new Error('Category not found');
             }
-            yield categoryRepository_1.categoryRepository.delete(id);
+            yield this.categoryRepository.delete(id);
         });
     }
 }
-exports.categoryService = new CategoryService();
+exports.categoryService = new CategoryService(categoryRepository_1.categoryRepository);

@@ -21,8 +21,9 @@ const OTP_EXPIRY_TIME = 60;
 const JWT_SECRET = process.env.JWT_SECRET || 'myjwtsecret';
 const http_status_codes_1 = require("http-status-codes");
 class UserService {
-    constructor(userRepository) {
+    constructor(userRepository, serviceRepository) {
         this.userRepository = userRepository;
+        this.serviceRepository = serviceRepository;
     }
     signup(userData) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -129,7 +130,89 @@ class UserService {
     }
     getAddressByUser(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.userRepository.getAddressByUser(userId);
+            try {
+                return yield this.userRepository.getAddressByUser(userId);
+            }
+            catch (error) {
+                console.error('Address not fetched');
+                throw new Error('Address not found');
+            }
+        });
+    }
+    fetchAddressSelected(addresId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.userRepository.fetchAddressSelected(addresId);
+            }
+            catch (error) {
+                console.error('Address not fetched');
+                throw new Error('Address not found');
+            }
+        });
+    }
+    fetchTimeSlots(employeeId, date) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.userRepository.fetchTimeSlots(employeeId, date);
+            }
+            catch (error) {
+                console.error('Timeslot not fetched');
+                throw new Error('Timeslot not found');
+            }
+        });
+    }
+    getTimeslots(slotId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.userRepository.getTimeslot(slotId);
+            }
+            catch (error) {
+                console.error('Timeslot not fetched');
+                throw new Error('Timeslot not found');
+            }
+        });
+    }
+    createBooking(userId, serviceId, addressId, timeslotId, paymentMethod, paymentResponse) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield this.userRepository.findUserById(userId);
+                if (!user)
+                    throw new Error("User not found");
+                const service = yield this.serviceRepository.findByServiceId(serviceId);
+                if (!service)
+                    throw new Error("Service not found");
+                const addresses = yield this.userRepository.getAddressByUser(userId);
+                const validAddress = addresses.find(address => address._id.toString() === addressId);
+                if (!validAddress)
+                    throw new Error("Address not found or does not belong to the user");
+                const timeslot = yield this.userRepository.getTimeslot(timeslotId);
+                if (!timeslot)
+                    throw new Error("Timeslot not found");
+                if (timeslot.isBooked)
+                    throw new Error("Timeslot is already booked");
+                let bookingStatus = 'Pending';
+                let paymentStatus = 'Pending';
+                if (paymentMethod === 'cash') {
+                    bookingStatus = 'Confirmed';
+                    paymentStatus = 'Pending';
+                }
+                else if (paymentMethod === 'online' || paymentMethod === 'wallet') {
+                    paymentStatus = paymentResponse.status === 'Success' ? 'Success' : 'Failed';
+                    bookingStatus = paymentStatus === 'Success' ? 'Confirmed' : 'Pending';
+                }
+                const bookingResult = yield this.userRepository.createBooking(userId, serviceId, addressId, timeslotId, paymentMethod, paymentResponse || {}, bookingStatus, paymentStatus);
+                if (!bookingResult.success) {
+                    throw new Error(bookingResult.message);
+                }
+                if (bookingStatus === 'Confirmed') {
+                    yield this.userRepository.bookTimeslot(timeslotId, true);
+                }
+                return bookingResult;
+            }
+            catch (error) {
+                console.error("Booking creation error:", error);
+                throw new Error(error instanceof Error ? error.message : "Booking creation failed");
+            }
         });
     }
 }

@@ -18,9 +18,12 @@ const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const JWT_SECRET = process.env.JWT_SECRET || 'myjwtsecret';
 class AdminService {
+    constructor(adminRepository) {
+        this.adminRepository = adminRepository;
+    }
     adminLogin(email, password) {
         return __awaiter(this, void 0, void 0, function* () {
-            const admin = yield adminRepository_1.adminRepository.findAdminByEmail(email);
+            const admin = yield this.adminRepository.findAdminByEmail(email);
             if (!admin) {
                 throw new Error('Admin not exists');
             }
@@ -37,15 +40,15 @@ class AdminService {
     }
     getUsers() {
         return __awaiter(this, void 0, void 0, function* () {
-            const data = yield adminRepository_1.adminRepository.getUsersData();
+            const data = yield this.adminRepository.getUsersData();
             return data;
         });
     }
     getEmployees() {
         return __awaiter(this, void 0, void 0, function* () {
-            const data = yield adminRepository_1.adminRepository.getEmployeesData();
+            const data = yield this.adminRepository.getEmployeesData();
             return data;
         });
     }
 }
-exports.adminService = new AdminService();
+exports.adminService = new AdminService(adminRepository_1.adminRepository);

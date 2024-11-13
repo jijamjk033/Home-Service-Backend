@@ -18,17 +18,20 @@ const userModel_1 = require("../models/userModel");
 class AdminRepository {
     findAdminByEmail(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield userModel_1.User.findOne({ email: email });
+            const user = yield userModel_1.User.findOne({ email: email }).lean();
+            return user;
         });
     }
     getUsersData() {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield userModel_1.User.find({});
+            const user = yield userModel_1.User.find({});
+            return user;
         });
     }
     getEmployeesData() {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield employeeModel_1.default.find({});
+            const employee = yield employeeModel_1.default.find({});
+            return employee;
         });
     }
 }

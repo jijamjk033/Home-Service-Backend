@@ -19,7 +19,8 @@ class EmployeeRepository {
     createEmployee(employeeData) {
         return __awaiter(this, void 0, void 0, function* () {
             const employee = new employeeModel_1.default(employeeData);
-            return yield employee.save();
+            const saved = yield employee.save();
+            return saved.toObject();
         });
     }
     findEmployeeByEmail(email) {
@@ -43,7 +44,7 @@ class EmployeeRepository {
     updateEmployeeVerificationStatus(email, is_verified) {
         return __awaiter(this, void 0, void 0, function* () {
             const statusUpdate = is_verified ? 'active' : 'blocked';
-            return yield employeeModel_1.default.updateOne({ email }, { is_verified, status: statusUpdate });
+            yield employeeModel_1.default.updateOne({ email }, { is_verified, status: statusUpdate });
         });
     }
     findSlot(employeeId, date, startTime, endTime) {
@@ -53,7 +54,7 @@ class EmployeeRepository {
                 date,
                 startTime,
                 endTime
-            });
+            }).lean();
             return existingSlot;
         });
     }
@@ -61,22 +62,23 @@ class EmployeeRepository {
         return __awaiter(this, void 0, void 0, function* () {
             const newTimeSlot = new timeslotModel_1.timeslots({ employeeId, date, startTime, endTime });
             const result = yield newTimeSlot.save();
-            return result;
+            return result.toObject();
         });
     }
     findTimeslotById(employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield timeslotModel_1.timeslots.find({ employeeId: employeeId });
+            const timeslotList = yield timeslotModel_1.timeslots.find({ employeeId: employeeId }).lean();
+            return timeslotList;
         });
     }
     deleteMany(employeeId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield timeslotModel_1.timeslots.deleteMany({ employeeId: employeeId });
+            yield timeslotModel_1.timeslots.deleteMany({ employeeId: employeeId });
         });
     }
     deleteById(slotId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield timeslotModel_1.timeslots.findByIdAndDelete(slotId);
+            yield timeslotModel_1.timeslots.findByIdAndDelete(slotId);
         });
     }
 }
