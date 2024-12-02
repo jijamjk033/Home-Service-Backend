@@ -14,12 +14,66 @@ const addressModel_1 = require("../models/addressModel");
 const bookingModel_1 = require("../models/bookingModel");
 const timeslotModel_1 = require("../models/timeslotModel");
 const userModel_1 = require("../models/userModel");
+const walletModel_1 = require("../models/walletModel");
 class UserRepository {
     createUser(userData) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = new userModel_1.User(userData);
             const savedUser = yield user.save();
             return savedUser.toObject();
+        });
+    }
+    createWallet(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const wallet = new walletModel_1.Wallet({
+                user: userId,
+                walletBalance: 0,
+                transactions: []
+            });
+            yield wallet.save();
+        });
+    }
+    getUserTransactions(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const transactions = walletModel_1.Wallet.findOne({ user: userId }).lean();
+                return transactions;
+            }
+            catch (error) {
+                throw new Error('Error fetching transactions');
+            }
+        });
+    }
+    addTransactionToWallet(userId, amount, type) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                let wallet = yield walletModel_1.Wallet.findOne({ user: userId });
+                if (!wallet) {
+                    wallet = new walletModel_1.Wallet({
+                        user: userId,
+                        transaction: [],
+                        walletBalance: 0,
+                    });
+                }
+                wallet.transactions.push({
+                    amount,
+                    type,
+                    date: new Date(),
+                });
+                if (type === 'credit') {
+                    wallet.walletBalance += amount;
+                }
+                else if (type === 'debit') {
+                    wallet.walletBalance -= amount;
+                }
+                yield wallet.save();
+                return wallet;
+            }
+            catch (error) {
+                if (error instanceof Error) {
+                    throw new Error(`Error updating wallet: ${error.message}`);
+                }
+            }
         });
     }
     findUserByEmail(email) {
@@ -105,7 +159,7 @@ class UserRepository {
             }
         });
     }
-    createBooking(userId, serviceId, addressId, timeslotId, paymentMethod, paymentResponse, bookingStatus, paymentStatus) {
+    createBooking(userId, serviceId, addressId, timeslotId, paymentMethod, totalAmount, paymentResponse, bookingStatus, paymentStatus) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const newBooking = new bookingModel_1.Booking({
@@ -114,6 +168,7 @@ class UserRepository {
                     addressId,
                     timeslotId,
                     paymentMethod,
+                    totalAmount,
                     paymentResponse,
                     bookingStatus,
                     paymentStatus
@@ -127,7 +182,7 @@ class UserRepository {
             }
         });
     }
-    bookTimeslot(slotId, booking) {
+    updateTimeslot(slotId, booking) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const slot = yield timeslotModel_1.timeslots.findById(slotId);
@@ -138,11 +193,26 @@ class UserRepository {
                 if (updateResult.modifiedCount === 0) {
                     throw new Error('Failed to update slot booking status');
                 }
-                return { success: true, message: 'Slot booked successfully' };
+                return { success: true, message: 'Slot updated successfully' };
             }
             catch (error) {
-                console.error('Booking failed:', error);
-                throw new Error(error instanceof Error ? error.message : 'Slot booking failed');
+                console.error('Updation failed:', error);
+                throw new Error(error instanceof Error ? error.message : 'Slot updation failed');
+            }
+        });
+    }
+    changeTimeslotStatus(slotId, booking) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const updateResult = yield timeslotModel_1.timeslots.updateOne({ _id: slotId }, { isBooked: booking });
+                if (updateResult.modifiedCount === 0) {
+                    throw new Error('Failed to update slot booking status');
+                }
+                return { success: true, message: 'Slot updated successfully' };
+            }
+            catch (error) {
+                console.error('Updation failed:', error);
+                throw new Error(error instanceof Error ? error.message : 'Slot updation failed');
             }
         });
     }

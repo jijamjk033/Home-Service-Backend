@@ -7,8 +7,10 @@ import { StatusCodes } from "http-status-codes";
 import { CustomMulterRequest } from "../config/multer";
 import imageUpload from "../helpers/imageUpload";
 import { categoryService } from "../services/categoryService";
+import { ICategoryController } from "../interfaces/categoryInterface";
 
-class CategoryController {
+class CategoryController implements ICategoryController {
+
   async addCategory(req: CustomMulterRequest, res: Response) {
     const categoryName = req.body.categoryName;
     const image = req.files?.image?.[0];

@@ -18,18 +18,21 @@ const bookingSchema = new mongoose_1.default.Schema({
     },
     addressId: {
         type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: 'Address',
+        ref: 'address',
         required: true
     },
     timeslotId: {
         type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: 'TimeSlot',
+        ref: 'Timeslots',
         required: true
     },
     paymentMethod: {
         type: String,
         enum: ['cash', 'online', 'wallet'],
         required: true
+    },
+    totalAmount: {
+        type: Number,
     },
     paymentResponse: {
         type: Object
@@ -44,6 +47,10 @@ const bookingSchema = new mongoose_1.default.Schema({
         enum: ['Pending', 'Confirmed', 'Cancelled'],
         default: 'Pending'
     },
+    completed: {
+        type: Boolean,
+        default: false,
+    }
 }, {
     timestamps: true,
 });

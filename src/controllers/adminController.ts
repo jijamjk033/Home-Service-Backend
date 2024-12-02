@@ -2,8 +2,9 @@ import { Request, Response } from "express";
 import { createSuccessResponse, createErrorResponse } from '../helpers/responseHelper';
 import { adminService } from "../services/adminService";
 import { StatusCodes } from 'http-status-codes';
+import { IAdminController } from "../interfaces/adminInterface";
 
-class AdminController {
+class AdminController implements IAdminController{
     async adminLogin(req: Request, res: Response) {
         const { email, password } = req.body;
 

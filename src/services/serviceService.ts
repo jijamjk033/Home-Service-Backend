@@ -1,8 +1,8 @@
-import { IServiceRepository } from "../interfaces/serviceInterface";
+import { IServiceRepository, IServiceService } from "../interfaces/serviceInterface";
 import { serviceRepository } from "../repositories/serviceRepository";
 
 
-class ServicesServices {
+class ServicesServices implements IServiceService{
 
     private repository: IServiceRepository;
 

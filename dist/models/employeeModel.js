@@ -29,7 +29,7 @@ const employeeSchema = new mongoose_1.default.Schema({
         type: String,
     },
     rating: {
-        type: String,
+        type: Number,
     },
     yearsOfExperience: {
         type: Number,

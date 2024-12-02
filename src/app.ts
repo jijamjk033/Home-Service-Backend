@@ -22,8 +22,6 @@ const corsOption = {
 
 app.use(cors(corsOption));
 
-
-
 app.use('/admin', adminRoutes);
 app.use('/user', userRoutes);
 app.use('/employee', employeeRoutes);

@@ -1,8 +1,9 @@
 import { IUserRepository } from "../interfaces/userInterfaces";
 import { addressModel, IAddress } from "../models/addressModel";
-import { Booking, IBooking } from "../models/bookingModel";
+import { Booking } from "../models/bookingModel";
 import { ITimeslot, timeslots } from "../models/timeslotModel";
 import { IUser, User } from "../models/userModel";
+import { ITransaction, Wallet } from "../models/walletModel";
 
 export class UserRepository implements IUserRepository {
 
@@ -10,6 +11,56 @@ export class UserRepository implements IUserRepository {
         const user = new User(userData);
         const savedUser = await user.save();
         return savedUser.toObject() as unknown as IUser;
+    }
+
+    async createWallet(userId: string) {
+        const wallet = new Wallet({
+            user: userId,
+            walletBalance: 0,
+            transactions: []
+        });
+
+        await wallet.save();
+    }
+
+    async getUserTransactions(userId: string){
+        try{
+            const transactions = Wallet.findOne({user: userId}).lean();
+            return transactions as unknown as ITransaction;
+        }catch(error){
+            throw new Error('Error fetching transactions')
+        }
+    }
+    
+    async addTransactionToWallet(userId: string, amount: number, type: 'credit' | 'debit') {
+        try {
+            let wallet = await Wallet.findOne({ user: userId });
+
+            if (!wallet) {
+                wallet = new Wallet({
+                    user: userId,
+                    transaction: [],
+                    walletBalance: 0,
+                });
+            }
+            wallet.transactions.push({
+                amount,
+                type,
+                date: new Date(),
+            });
+
+            if (type === 'credit') {
+                wallet.walletBalance += amount;
+            } else if (type === 'debit') {
+                wallet.walletBalance -= amount;
+            }
+            await wallet.save();
+            return wallet;
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error(`Error updating wallet: ${error.message}`);
+            }
+        }
     }
 
     async findUserByEmail(email: string): Promise<any> {
@@ -75,7 +126,7 @@ export class UserRepository implements IUserRepository {
     async fetchTimeSlots(employeeId: string, date: string) {
         try {
             const timeslotsFetched = await timeslots.find(
-                { employeeId: employeeId, date: date ,isBooked: false},
+                { employeeId: employeeId, date: date, isBooked: false },
                 { employeeId: 1, date: 1, startTime: 1, endTime: 1, isBooked: 1 }
             ).lean();
             return timeslotsFetched as unknown as ITimeslot[];
@@ -94,7 +145,7 @@ export class UserRepository implements IUserRepository {
         }
     }
 
-    async createBooking(userId: string, serviceId: string, addressId: string, timeslotId: string, paymentMethod: string, paymentResponse: object, bookingStatus: 'Pending' | 'Confirmed' | 'Cancelled', paymentStatus: 'Pending' | 'Success' | 'Failed') {
+    async createBooking(userId: string, serviceId: string, addressId: string, timeslotId: string, paymentMethod: string, totalAmount: number, paymentResponse: object, bookingStatus: 'Pending' | 'Confirmed' | 'Cancelled', paymentStatus: 'Pending' | 'Success' | 'Failed') {
         try {
             const newBooking = new Booking({
                 userId,
@@ -102,9 +153,10 @@ export class UserRepository implements IUserRepository {
                 addressId,
                 timeslotId,
                 paymentMethod,
+                totalAmount,
                 paymentResponse,
-                bookingStatus, 
-                paymentStatus 
+                bookingStatus,
+                paymentStatus
             });
             const savedBooking = await newBooking.save();
             return { success: true, message: 'Booking created successfully', booking: savedBooking };
@@ -113,24 +165,37 @@ export class UserRepository implements IUserRepository {
             return { success: false, message: `Booking creation failed: ${error instanceof Error ? error.message : "Unknown error"}` };
         }
     }
-    
-    async bookTimeslot(slotId: string, booking: boolean) {
+
+    async updateTimeslot(slotId: string, booking: boolean) {
         try {
             const slot = await timeslots.findById(slotId);
-            if (slot && slot.isBooked) { 
+            if (slot && slot.isBooked) {
                 throw new Error('Slot is already booked');
             }
             const updateResult = await timeslots.updateOne({ _id: slotId }, { isBooked: booking });
             if (updateResult.modifiedCount === 0) {
                 throw new Error('Failed to update slot booking status');
             }
-            return { success: true, message: 'Slot booked successfully' };
+            return { success: true, message: 'Slot updated successfully' };
         } catch (error) {
-            console.error('Booking failed:', error);
-            throw new Error(error instanceof Error ? error.message : 'Slot booking failed');
+            console.error('Updation failed:', error);
+            throw new Error(error instanceof Error ? error.message : 'Slot updation failed');
         }
     }
-    
+
+    async changeTimeslotStatus(slotId: string, booking: boolean) {
+        try {
+            const updateResult = await timeslots.updateOne({ _id: slotId }, { isBooked: booking });
+            if (updateResult.modifiedCount === 0) {
+                throw new Error('Failed to update slot booking status');
+            }
+            return { success: true, message: 'Slot updated successfully' };
+        } catch (error) {
+            console.error('Updation failed:', error);
+            throw new Error(error instanceof Error ? error.message : 'Slot updation failed');
+        }
+    }
+
 }
 
 

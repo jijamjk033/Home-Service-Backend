@@ -1,12 +1,12 @@
 import { adminRepository } from "../repositories/adminRepository";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { IAdminRepository } from "../interfaces/adminInterface";
+import { IAdminRepository, IAdminService } from "../interfaces/adminInterface";
 
 
 const JWT_SECRET = process.env.JWT_SECRET || 'myjwtsecret';
 
-class AdminService {
+class AdminService implements IAdminService {
 
     private adminRepository:IAdminRepository;
     constructor(adminRepository:IAdminRepository){

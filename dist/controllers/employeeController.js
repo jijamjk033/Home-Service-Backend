@@ -66,10 +66,10 @@ class EmployeeController {
             }
             try {
                 const result = yield employeeService_1.employeeService.resendOtp(email);
-                res.status(http_status_codes_1.StatusCodes.OK).json((0, responseHelper_1.createSuccessResponse)(result));
+                return res.status(http_status_codes_1.StatusCodes.OK).json((0, responseHelper_1.createSuccessResponse)(result));
             }
             catch (err) {
-                res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).json((0, responseHelper_1.createErrorResponse)('An unknown error occurred'));
+                return res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).json((0, responseHelper_1.createErrorResponse)('An unknown error occurred'));
             }
         });
     }
@@ -101,74 +101,6 @@ class EmployeeController {
                 res
                     .status(http_status_codes_1.StatusCodes.BAD_REQUEST)
                     .json({ message: "Error fetching Employee Data", error });
-            }
-        });
-    }
-    timeslotCreation(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { employeeId, startDate, endDate, startTime, endTime } = req.body;
-            try {
-                const result = yield employeeService_1.employeeService.timeslot(employeeId, startDate, endDate, startTime, endTime);
-                res.status(http_status_codes_1.StatusCodes.OK).json((0, responseHelper_1.createSuccessResponse)(result));
-            }
-            catch (error) {
-                if (error instanceof Error) {
-                    console.error('Error in timeslot creation:', error.message);
-                    if (error.message === 'Time slot already exists for this date and time.') {
-                        res.status(http_status_codes_1.StatusCodes.CONFLICT).json((0, responseHelper_1.createErrorResponse)(error.message));
-                    }
-                    else {
-                        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).json((0, responseHelper_1.createErrorResponse)(error.message));
-                    }
-                }
-                else {
-                    console.error('Unknown error in timeslot creation');
-                    res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).json((0, responseHelper_1.createErrorResponse)('An unknown error occurred'));
-                }
-            }
-        });
-    }
-    getTimeslots(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const employeeId = req.params.id;
-            try {
-                const timeSlots = yield employeeService_1.employeeService.getTimeSlots(employeeId);
-                res.status(http_status_codes_1.StatusCodes.OK).json({
-                    success: true,
-                    data: timeSlots,
-                    message: "Timeslot fetched successfully"
-                });
-            }
-            catch (error) {
-                res
-                    .status(http_status_codes_1.StatusCodes.BAD_REQUEST)
-                    .json({ message: "Error fetching Timeslots", error });
-            }
-        });
-    }
-    deleteTimeslots(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const employeeId = req.params.id;
-            try {
-                const result = yield employeeService_1.employeeService.deleteSlotsByEmployeeId(employeeId);
-                return res.status(http_status_codes_1.StatusCodes.OK).json({ data: result, message: 'Time slots deleted successfully for employee.' });
-            }
-            catch (error) {
-                console.error('Error deleting time slots:', error);
-                return res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'An error occurred while deleting the time slots.' });
-            }
-        });
-    }
-    deleteTimeslotsById(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const slotId = req.params.id;
-            try {
-                const result = yield employeeService_1.employeeService.deleteSlotsBySlotId(slotId);
-                return res.status(http_status_codes_1.StatusCodes.OK).json({ data: result, message: 'Time slot deleted successfully.' });
-            }
-            catch (error) {
-                console.error('Error deleting time slots:', error);
-                return res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'An error occurred while deleting the time slots.' });
             }
         });
     }

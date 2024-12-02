@@ -4,8 +4,9 @@ import { StatusCodes } from 'http-status-codes';
 import { CustomMulterRequest } from "../config/multer";
 import imageUpload from "../helpers/imageUpload";
 import { serviceService } from "../services/serviceService";
+import { IServiceController } from "../interfaces/serviceInterface";
 
-class ServiceController {
+class ServiceController implements IServiceController {
     async addServices(req: CustomMulterRequest, res: Response) {
         try {
             const serviceName = req.body.serviceName;

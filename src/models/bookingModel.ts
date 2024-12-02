@@ -1,17 +1,37 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 export interface IBooking {
-    userId: mongoose.Types.ObjectId;
-    serviceId: mongoose.Types.ObjectId;
-    addressId: mongoose.Types.ObjectId;
-    timeslotId: mongoose.Types.ObjectId;
-    paymentMethod: 'Cash' | 'Online' | 'Wallet';
-    paymentResponse?: object;
-    paymentStatus: 'Pending' | 'Success' | 'Failed';
-    bookingStatus: 'Pending' | 'Confirmed' | 'Cancelled';
-    createdAt?: Date;
-    updatedAt?: Date;
+    _id: Types.ObjectId; 
+    userId: string;
+    serviceId: Types.ObjectId | string;
+    addressId: Types.ObjectId | string;
+    timeslotId:  string; 
+    date: string;
+    totalAmount: number; 
+    paymentMethod: "Cash" | "Online" | "Wallet";
+    bookingStatus: "Pending" | "Confirmed" | "Cancelled"| "Completed";
+    paymentStatus: "Pending" | "Success" | "Failed";
+    completed: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    paymentResponse?: {
+        paymentId: string;
+        status?: string; 
+    };
 }
+
+export interface IBookingResponse {
+    employee: string;
+    date: string;
+    category: string;
+    service: string;
+    totalAmount: number;
+    paymentMethod: 'cash' | 'online' | 'wallet';
+    bookingStatus: 'Pending' | 'Confirmed' | 'Cancelled';
+    completed:boolean;
+}
+
+
 
 const bookingSchema = new mongoose.Schema(
     {
@@ -27,18 +47,21 @@ const bookingSchema = new mongoose.Schema(
         },
         addressId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Address',
+            ref: 'address',
             required: true
         },
         timeslotId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'TimeSlot',
+            ref: 'Timeslots',
             required: true
         },
         paymentMethod: {
             type: String,
             enum: ['cash', 'online', 'wallet'],
             required: true
+        },
+        totalAmount: {
+            type: Number,
         },
         paymentResponse: {
             type: Object
@@ -53,6 +76,10 @@ const bookingSchema = new mongoose.Schema(
             enum: ['Pending', 'Confirmed', 'Cancelled'],
             default: 'Pending'
         },
+        completed: {
+            type: Boolean,
+            default: false,
+        }
     },
     {
         timestamps: true,

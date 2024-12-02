@@ -1,5 +1,17 @@
 import mongoose from "mongoose";
 
+export interface ITransaction {
+    date?: Date; 
+    amount: number;
+    type: 'debit' | 'credit';
+}
+
+export interface WalletModel extends Document {
+    user: string;
+    transactions: ITransaction[]; 
+    walletBalance?: number;
+}
+
 const transaction = new mongoose.Schema({
     date: {
         type: Date,
@@ -16,13 +28,14 @@ const transaction = new mongoose.Schema({
     }
 })
 
+
 const walletSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
       },
-      transaction:[transaction],
+      transactions:[transaction],
 
       walletBalance: {
         type: Number,

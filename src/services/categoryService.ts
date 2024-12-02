@@ -1,9 +1,9 @@
-import { ICategoryRepository } from "../interfaces/categoryInterface";
+import { ICategoryRepository, ICategoryService } from "../interfaces/categoryInterface";
 import { categoryRepository } from "../repositories/categoryRepository";
 
-class CategoryService{
-    private categoryRepository:ICategoryRepository;
-    constructor(categoryRepository:ICategoryRepository){
+class CategoryService implements ICategoryService {
+    private categoryRepository: ICategoryRepository;
+    constructor(categoryRepository: ICategoryRepository) {
         this.categoryRepository = categoryRepository;
     }
 

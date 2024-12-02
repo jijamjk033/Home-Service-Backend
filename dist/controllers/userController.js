@@ -14,9 +14,8 @@ const userService_1 = require("../services/userService");
 const responseHelper_1 = require("../helpers/responseHelper");
 const http_status_codes_1 = require("http-status-codes");
 const userRepository_1 = require("../repositories/userRepository");
-const serviceRepository_1 = require("../repositories/serviceRepository");
 const userRepository = new userRepository_1.UserRepository();
-const userService = new userService_1.UserService(userRepository, serviceRepository_1.serviceRepository);
+const userService = new userService_1.UserService(userRepository);
 class UserController {
     signup(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -87,143 +86,36 @@ class UserController {
             }
         });
     }
-    addAddress(req, res) {
+    getUserDetails(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { address, locality, city, state, pincode, user, typeOfAddress } = req.body;
             try {
-                const result = yield userService.addAddress(address, locality, city, state, pincode, user, typeOfAddress);
-                res.status(http_status_codes_1.StatusCodes.OK).json({
-                    success: true,
-                    message: 'Address saved successfully',
-                    data: result,
-                });
+                const userid = req.params.id;
+                const userDetails = yield userService.getUserDetails(userid);
+                console.log(userDetails);
+                res.status(http_status_codes_1.StatusCodes.OK).json((0, responseHelper_1.createSuccessResponse)(userDetails));
             }
             catch (error) {
                 if (error instanceof Error) {
-                    console.error('Error saving address:', error);
-                    res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).json({
-                        success: false,
-                        message: 'Failed to save address. Please try again later.',
-                        error: error.message || 'Internal Server Error',
-                    });
-                }
-            }
-        });
-    }
-    getAddress(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const userId = req.params.id;
-            try {
-                const addresses = yield userService.getAddressByUser(userId);
-                res.status(http_status_codes_1.StatusCodes.OK).json({
-                    success: true,
-                    message: 'Addresses fetched successfully',
-                    data: addresses,
-                });
-            }
-            catch (error) {
-                if (error instanceof Error) {
-                    console.error('Error fetching addresses:', error);
-                    res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).json({
-                        success: false,
-                        message: 'Failed to fetch addresses. Please try again later.',
-                        error: error.message || 'Internal Server Error',
-                    });
-                }
-            }
-        });
-    }
-    getTimeslots(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const timeslot = req.params.id;
-                const timeslotDetails = yield userService.getTimeslots(timeslot);
-                res.status(http_status_codes_1.StatusCodes.OK).json({
-                    message: 'Timeslot fetched successfully',
-                    success: true,
-                    data: timeslotDetails
-                });
-            }
-            catch (error) {
-                if (error instanceof Error) {
-                    res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).json({
-                        message: error.message,
-                        success: false
-                    });
-                }
-            }
-        });
-    }
-    fetchTimeSlots(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const employeeId = req.params.id;
-                const date = req.query.date;
-                if (typeof date === 'string') {
-                    const timeslots = yield userService.fetchTimeSlots(employeeId, date);
-                    res.status(http_status_codes_1.StatusCodes.OK).json({
-                        message: 'Timeslot fetched successfully',
-                        success: true,
-                        data: timeslots,
-                    });
+                    res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).json((0, responseHelper_1.createErrorResponse)(error.message));
                 }
                 else {
-                    res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).json({
-                        message: 'Invalid date format',
-                        success: false
-                    });
-                }
-            }
-            catch (error) {
-                if (error instanceof Error) {
-                    res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).json({
-                        message: error.message,
-                        success: false
-                    });
+                    res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).json((0, responseHelper_1.createErrorResponse)('An unknown error occurred'));
                 }
             }
         });
     }
-    fetchAddressSelected(req, res) {
+    getUserTransactions(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const addressId = req.params.id;
             try {
-                const addresses = yield userService.fetchAddressSelected(addressId);
-                res.status(http_status_codes_1.StatusCodes.OK).json({
-                    success: true,
-                    message: 'Address fetched successfully',
-                    data: addresses,
-                });
+                const userId = req.params.id;
+                const transactions = yield userService.getUserTransactions(userId);
+                res.status(http_status_codes_1.StatusCodes.OK).json((0, responseHelper_1.createSuccessResponse)(transactions));
             }
             catch (error) {
                 if (error instanceof Error) {
-                    console.error('Error fetching address:', error);
-                    res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).json({
-                        success: false,
-                        message: 'Failed to fetch address. Please try again later.',
-                        error: error.message || 'Internal Server Error',
-                    });
+                    console.error('Error fetching transactions', error);
+                    res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).json((0, responseHelper_1.createErrorResponse)(error.message));
                 }
-            }
-        });
-    }
-    createBooking(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { userId, serviceId, addressId, timeslotId, paymentMethod, paymentResponse } = req.body;
-            console.log(paymentMethod, 'payment initiated');
-            try {
-                const response = yield userService.createBooking(userId, serviceId, addressId, timeslotId, paymentMethod, paymentResponse);
-                return res.status(http_status_codes_1.StatusCodes.OK).json({
-                    message: response.message || 'Booking successfull',
-                    success: response.success,
-                });
-            }
-            catch (error) {
-                const message = error instanceof Error ? error.message : 'An unknown error occurred';
-                res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).json({
-                    message,
-                    success: false,
-                });
             }
         });
     }

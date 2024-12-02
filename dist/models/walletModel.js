@@ -26,7 +26,7 @@ const walletSchema = new mongoose_1.default.Schema({
         ref: 'User',
         required: true,
     },
-    transaction: [transaction],
+    transactions: [transaction],
     walletBalance: {
         type: Number,
         default: 0,
