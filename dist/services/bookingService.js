@@ -26,7 +26,6 @@ class BookingService {
                 if (!user)
                     throw new Error('User does not exists');
                 const bookingdata = yield this.bookingRepository.getBookingList(userId);
-                console.log(bookingdata);
                 return bookingdata;
             }
             catch (error) {
@@ -79,12 +78,12 @@ class BookingService {
                     const booking = yield this.bookingRepository.getBookingDetails(bookingId);
                     if (!booking)
                         throw new Error('Booking not found');
-                    yield userRepository.changeTimeslotStatus(booking.timeslotId, false);
+                    yield this.userRepository.changeTimeslotStatus(booking.timeslotId, false);
                     if (booking.paymentMethod === 'Online' && ((_a = booking.paymentResponse) === null || _a === void 0 ? void 0 : _a.paymentId)) {
                         yield this.refund(booking.paymentResponse.paymentId, (_b = booking.totalAmount) !== null && _b !== void 0 ? _b : 0);
                     }
                 }
-                const updatedBooking = yield bookingrepository_1.bookingRepository.updateBookingStatus(bookingId, updateData);
+                const updatedBooking = yield this.bookingRepository.updateBookingStatus(bookingId, updateData);
                 if (!updatedBooking) {
                     throw new Error('Failed to update booking status');
                 }

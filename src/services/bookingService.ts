@@ -67,20 +67,15 @@ class BookingService implements IBookingService {
             if (bookingStatus === 'Cancelled') {
                 const booking = await this.bookingRepository.getBookingDetails(bookingId);
                 if (!booking) throw new Error('Booking not found');
-
                 await this.userRepository.changeTimeslotStatus(booking.timeslotId, false);
-
                 if (booking.paymentMethod === 'Online' && booking.paymentResponse?.paymentId) {
                     await this.refund(booking.paymentResponse.paymentId, booking.totalAmount ?? 0);
                 }
             }
-
             const updatedBooking = await this.bookingRepository.updateBookingStatus(bookingId, updateData);
-
             if (!updatedBooking) {
                 throw new Error('Failed to update booking status');
             }
-
             return updatedBooking;
         } catch (error) {
             if (error instanceof Error) {
@@ -89,8 +84,6 @@ class BookingService implements IBookingService {
             throw error;
         }
     }
-
-
 
     async refund(paymentId: string, totalAmount: number): Promise<void> {
         try {
@@ -109,12 +102,10 @@ class BookingService implements IBookingService {
         try {
             const booking = await this.bookingRepository.getBookingDetails(bookingId);
             console.log(booking);
-
             if (!booking) throw new Error('Booking not found');
             if (booking.bookingStatus === 'Completed' || booking.bookingStatus === 'Cancelled') {
                 throw new Error('Booking cannot be cancelled');
             }
-
             const currentTime = new Date();
             const slotDate = await this.parseBookingDate(booking.date);
 

@@ -1,6 +1,5 @@
 import express from 'express';
 import { employeeController } from '../controllers/employeeController';
-import { authMiddleware } from '../middlewares/userAuth';
 import { bookingController } from '../controllers/bookingController';
 import { timeslotController } from '../controllers/timeslotController';
 

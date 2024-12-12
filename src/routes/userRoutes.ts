@@ -22,4 +22,5 @@ router.get('/getBookingDetails/:id', bookingController.getBookingDetails);
 router.post('/cancelBooking/:id', bookingController.cancelBooking);
 router.get('/get-transactions/:id',userController.getUserTransactions);
 
+
 export default router;

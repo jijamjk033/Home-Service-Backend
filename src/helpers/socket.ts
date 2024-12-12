@@ -1,0 +1,45 @@
+import { Server } from 'socket.io';
+import { Server as HttpServer } from 'http';
+import { chatRepository } from '../repositories/chatRepository';
+import { notificationRepository } from '../repositories/notificationRepository';
+
+let io: Server
+
+export const setupSocket = (server: HttpServer) => {
+    io = new Server(server, {
+        cors: {
+            origin: 'http://localhost:4200',
+            methods: ["GET", "POST"]
+        }
+    });
+
+    io.on("connection", (socket) => {
+        console.log("User connected:", socket.id);
+        socket.on("joinChat", (chatId) => {
+            socket.join(chatId);
+        });
+
+        socket.on('sendMessage', async (data) => {
+            console.log('sendMessage event triggered:', data);
+            const { chatId, sender, message } = data;
+            if (!chatId || !sender || !message) {
+                console.error('Invalid message data:', data);
+                socket.emit('error', 'Invalid message data');
+                return;
+            }
+            try {
+                const newMessage = await chatRepository.saveMessage(chatId, sender, message);
+                await chatRepository.updateChatLastMessage(chatId, message);
+                io.to(chatId).emit('newMessage', newMessage);
+            } catch (error) {
+                if (error instanceof Error)
+                    console.error('Error handling sendMessage:', error.message);
+                socket.emit('error', 'Message could not be saved');
+            }
+        });
+
+        socket.on("disconnect", () => {
+            console.log("User disconnected:", socket.id);
+        });
+    });
+}

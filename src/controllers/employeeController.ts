@@ -7,7 +7,6 @@ import { IEmployeeController } from "../interfaces/employeeInterface";
 class EmployeeController implements IEmployeeController{
 
     async signup(req: any, res: any) {
-
         try {
             const result = await employeeService.signup(req.body);
             res.status(StatusCodes.OK).json(createSuccessResponse(result));

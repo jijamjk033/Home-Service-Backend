@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { IBookingRepository } from "../interfaces/bookingInterface";
 import { Booking, IBooking } from "../models/bookingModel";
 
-class BookingRepository {
+class BookingRepository implements IBookingRepository {
     async getBookingList(userId: string) {
         try {
             const bookings = await Booking.find({ userId: new mongoose.Types.ObjectId(userId) })

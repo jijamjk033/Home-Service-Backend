@@ -109,7 +109,7 @@ export class UserService implements IUserService{
         const token = jwt.sign({ email: user.email, id: user._id }, JWT_SECRET, { expiresIn: '10h' });
         return {
             token, user: { email: user.email, id: user._id, username: user.name, is_done: user.is_verified },
-            message: 'User login successful'
+            message: 'Login successful'
         }
     }
 

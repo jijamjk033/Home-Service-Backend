@@ -4,15 +4,12 @@ import { bookingService } from "../services/bookingService";
 import { IBookingController, IBookingService } from "../interfaces/bookingInterface";
 
 class BookingController implements IBookingController {
-    private bookingService: IBookingService;
-
-    constructor(bookingService: IBookingService) {
-        this.bookingService = bookingService;
-    }
+      
     async getBookingList(req: Request, res: Response) {
         try {
             const userId = req.params.id;
-            const bookingData = await this.bookingService.getBookingList(userId);
+            const bookingData = await bookingService.getBookingList(userId);
+            
             res.status(StatusCodes.OK).json({
                 status: 'Success',
                 data: bookingData,
@@ -28,7 +25,7 @@ class BookingController implements IBookingController {
     async getEmployeeBookings(req: Request, res: Response){
         try {
             const employeeId = req.params.id;
-            const bookingData = await this.bookingService.getEmployeeBookings(employeeId);
+            const bookingData = await bookingService.getEmployeeBookings(employeeId);
             res.status(StatusCodes.OK).json({
                 status: 'Success',
                 data: bookingData,
@@ -44,7 +41,7 @@ class BookingController implements IBookingController {
     async getBookingDetails(req: Request, res: Response) {
         try {
             const bookingId = req.params.id;
-            const bookingData = await this.bookingService.getBookingDetails(bookingId);
+            const bookingData = await bookingService.getBookingDetails(bookingId);
             res.status(StatusCodes.OK).json({
                 status: 'Success',
                 data: bookingData,
@@ -62,7 +59,7 @@ class BookingController implements IBookingController {
         try {
             const bookingId = req.params.id;
             const { bookingStatus, completed } = req.body;
-            const updatedBooking = await this.bookingService.updateBookingStatus(bookingId, bookingStatus, completed);
+            const updatedBooking = await bookingService.updateBookingStatus(bookingId, bookingStatus, completed);
             res.status(StatusCodes.OK).json({
                 status: 'Success',
                 data: updatedBooking,
@@ -78,7 +75,7 @@ class BookingController implements IBookingController {
     async cancelBooking(req: Request, res: Response) {
         try {
             const bookingId = req.params.id;
-            const result = await this.bookingService.cancelBooking(bookingId);
+            const result = await bookingService.cancelBooking(bookingId);
             res.status(StatusCodes.OK).json({
                 status: 'Success',
                 data: result,
@@ -96,7 +93,7 @@ class BookingController implements IBookingController {
         const { userId, serviceId, addressId, timeslotId, paymentMethod, totalAmount, paymentResponse } = req.body;
         console.log(paymentMethod, 'payment initiated');
         try {
-            const response = await this.bookingService.createBooking(userId, serviceId, addressId, timeslotId, paymentMethod, totalAmount, paymentResponse);
+            const response = await bookingService.createBooking(userId, serviceId, addressId, timeslotId, paymentMethod, totalAmount, paymentResponse);
             return res.status(StatusCodes.OK).json({
                 message: response.message || 'Booking successfull',
                 success: response.success,
@@ -111,4 +108,4 @@ class BookingController implements IBookingController {
     }
 }
 
-export const bookingController = new BookingController(bookingService)
+export const bookingController = new BookingController()

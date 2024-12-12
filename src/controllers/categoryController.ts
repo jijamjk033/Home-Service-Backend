@@ -1,8 +1,5 @@
 import { Request, Response } from "express";
-import {
-  createSuccessResponse,
-  createErrorResponse,
-} from "../helpers/responseHelper";
+import { createSuccessResponse, createErrorResponse } from "../helpers/responseHelper";
 import { StatusCodes } from "http-status-codes";
 import { CustomMulterRequest } from "../config/multer";
 import imageUpload from "../helpers/imageUpload";

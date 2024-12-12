@@ -18,7 +18,6 @@ class BookingController {
             try {
                 const userId = req.params.id;
                 const bookingData = yield bookingService_1.bookingService.getBookingList(userId);
-                console.log(bookingData);
                 res.status(http_status_codes_1.StatusCodes.OK).json({
                     status: 'Success',
                     data: bookingData,
