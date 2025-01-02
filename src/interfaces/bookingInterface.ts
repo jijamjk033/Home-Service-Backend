@@ -25,7 +25,7 @@ export interface IBookingService {
     getBookingDetails(bookingId: string): Promise<IBooking>;
     updateBookingStatus(bookingId: string, bookingStatus?: string, completed?: boolean): Promise<IBooking>;
     refund(paymentId: string, totalAmount: number): Promise<void>;
-    cancelBooking(bookingId: string): Promise<string>;
+    cancelBooking(bookingId: string, userId:string, senderModel:string): Promise<string>;
     parseBookingDate(bookingDate: string): Promise<Date>;
     createBooking(
         userId: string,

@@ -112,11 +112,10 @@ class BookingService {
             }
         });
     }
-    cancelBooking(bookingId) {
+    cancelBooking(bookingId, senderId, senderModel) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const booking = yield this.bookingRepository.getBookingDetails(bookingId);
-                console.log(booking);
                 if (!booking)
                     throw new Error('Booking not found');
                 if (booking.bookingStatus === 'Completed' || booking.bookingStatus === 'Cancelled') {
@@ -128,7 +127,7 @@ class BookingService {
                 let refundAmount = 0;
                 console.log('details-->', currentTime, booking.date, slotDate, timeDifferenceInHours);
                 if (timeDifferenceInHours > 24) {
-                    refundAmount = booking.totalAmount - 50;
+                    refundAmount = senderModel === 'User' ? booking.totalAmount - 50 : booking.totalAmount;
                 }
                 else if (timeDifferenceInHours >= 12 && timeDifferenceInHours <= 24) {
                     refundAmount = 0;
@@ -142,6 +141,13 @@ class BookingService {
                     console.log('wallet', walletCreated);
                 }
                 yield userRepository.changeTimeslotStatus(booking.timeslotId, false);
+                // const recipientId = senderModel === 'User' ? booking.employee : booking.userId;
+                // const recipientModel = senderModel === 'User' ? 'Employee' : 'User';
+                // const message = senderModel === 'User'
+                //     ? `Your timeslot has been cancelled by the user. Booking ID: ${bookingId}.`
+                //     : `Your booking has been cancelled by the employee. Booking ID: ${bookingId}. Refund of ₹${refundAmount} has been processed.`;
+                // const notificationType = 'cancellation';
+                // await notificationRepository.createNotification(senderId, senderModel, recipientId, recipientModel, message, notificationType);
                 return `Booking cancelled successfully. Refund of ₹${refundAmount} has been processed.`;
             }
             catch (error) {

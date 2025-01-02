@@ -20,6 +20,7 @@ const otpService_1 = require("../helpers/otpService");
 const http_status_codes_1 = require("http-status-codes");
 const OTP_EXPIRY_TIME = 60;
 const JWT_SECRET = process.env.JWT_SECRET || 'myjwtsecret';
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESHSECRET || 'myjwtRefreshsecret';
 class UserService {
     constructor(userRepository) {
         this.userRepository = userRepository;
@@ -122,8 +123,10 @@ class UserService {
                 throw new Error('Not a user');
             }
             const token = jsonwebtoken_1.default.sign({ email: user.email, id: user._id }, JWT_SECRET, { expiresIn: '10h' });
+            const refreshToken = jsonwebtoken_1.default.sign({ email: user.email, id: user._id }, JWT_REFRESH_SECRET, { expiresIn: '7d' });
+            yield this.userRepository.updateUser(user._id, { refreshToken: refreshToken });
             return {
-                token, user: { email: user.email, id: user._id, username: user.name, is_done: user.is_verified },
+                token, refreshToken, user: { email: user.email, id: user._id, username: user.name, is_done: user.is_verified },
                 message: 'Login successful'
             };
         });

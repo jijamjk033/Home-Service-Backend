@@ -23,6 +23,15 @@ class UserRepository {
             return savedUser.toObject();
         });
     }
+    updateUser(userId, updateData) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const updatedUser = yield userModel_1.User.findByIdAndUpdate(userId, { $set: updateData }, { new: true });
+            if (!updatedUser) {
+                throw new Error(`User with ID ${userId} not found`);
+            }
+            return updatedUser.toObject();
+        });
+    }
     createWallet(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             const wallet = new walletModel_1.Wallet({

@@ -7,7 +7,7 @@ import { IUserRepository, IUserService } from '../interfaces/userInterfaces';
 import { IUser } from '../models/userModel';
 const OTP_EXPIRY_TIME = 60;
 const JWT_SECRET = process.env.JWT_SECRET || 'myjwtsecret';
-
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESHSECRET || 'myjwtRefreshsecret';
 
 export class UserService implements IUserService{
     private userRepository: IUserRepository;
@@ -107,8 +107,14 @@ export class UserService implements IUserService{
             throw new Error('Not a user')
         }
         const token = jwt.sign({ email: user.email, id: user._id }, JWT_SECRET, { expiresIn: '10h' });
+        const refreshToken = jwt.sign(
+            { email: user.email, id: user._id },
+            JWT_REFRESH_SECRET,
+            { expiresIn: '7d' } 
+        );
+        await this.userRepository.updateUser(user._id, { refreshToken: refreshToken });
         return {
-            token, user: { email: user.email, id: user._id, username: user.name, is_done: user.is_verified },
+            token, refreshToken, user: { email: user.email, id: user._id, username: user.name, is_done: user.is_verified },
             message: 'Login successful'
         }
     }

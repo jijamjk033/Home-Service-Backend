@@ -13,6 +13,19 @@ export class UserRepository implements IUserRepository {
         return savedUser.toObject() as unknown as IUser;
     }
 
+    async updateUser(userId: string, updateData: Partial<IUser>) {
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { $set: updateData },
+            { new: true }
+        );
+        if (!updatedUser) {
+            throw new Error(`User with ID ${userId} not found`);
+        }
+        return updatedUser.toObject() as unknown as IUser;
+    }
+    
+
     async createWallet(userId: string) {
         const wallet = new Wallet({
             user: userId,

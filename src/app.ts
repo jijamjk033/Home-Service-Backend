@@ -8,6 +8,7 @@ import userRoutes from './routes/userRoutes';
 import employeeRoutes from './routes/employeeRoutes';
 import { setupSocket } from './helpers/socket';
 import chatRoutes from './routes/chatRoutes';
+import notificationRoutes from './routes/notificationRoutes';
 import morganMiddleware from './middlewares/morgan';
 
 const PORT = process.env.PORT || 5000;
@@ -31,7 +32,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/employee', employeeRoutes);
 app.use('/api/chat',chatRoutes);
-
+app.use('/api/notification',notificationRoutes);
 connectDB();
 const server = http.createServer(app);
 

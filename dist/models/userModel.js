@@ -29,6 +29,15 @@ const userSchema = new mongoose_1.default.Schema({
         type: String,
         enum: ["active", "blocked"],
     },
+    role: {
+        type: String,
+        enum: ['Admin', 'User'],
+        default: 'User'
+    },
+    refreshToken: {
+        type: String,
+        default: null
+    },
     isAdmin: {
         type: Boolean,
         default: false,

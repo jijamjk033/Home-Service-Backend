@@ -28,11 +28,9 @@ class AuthMiddleware {
             }
             try {
                 const decoded = jsonwebtoken_1.default.verify(token, this.jwtSecret);
-                if (decoded) {
-                    const userData = yield this.userRepository.findUserByEmail(decoded.email);
-                    if ((userData === null || userData === void 0 ? void 0 : userData.is_verified) === false) {
-                        return res.status(401).send('Access Denied: You Are Blocked By Admin!');
-                    }
+                const userData = yield this.userRepository.findUserByEmail(decoded.email);
+                if ((userData === null || userData === void 0 ? void 0 : userData.is_verified) === false) {
+                    return res.status(401).send('Access Denied: You Are Blocked By Admin!');
                 }
                 if (decoded) {
                     req.user = decoded;
@@ -46,6 +44,14 @@ class AuthMiddleware {
                 res.status(400).send('Invalid Token');
             }
         });
+        this.checkRole = (roles) => {
+            return (req, res, next) => {
+                if (!req.user || !roles.includes(req.user.role)) {
+                    return res.status(403).send('Access Denied: Insufficient Permissions!');
+                }
+                next();
+            };
+        };
         this.jwtSecret = jwtSecret;
         this.userRepository = userRepository;
     }

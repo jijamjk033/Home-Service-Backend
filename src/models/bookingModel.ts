@@ -3,6 +3,7 @@ import mongoose, { Types } from "mongoose";
 export interface IBooking {
     _id: Types.ObjectId; 
     userId: string;
+    employee: string;
     serviceId: Types.ObjectId | string;
     addressId: Types.ObjectId | string;
     timeslotId:  string; 

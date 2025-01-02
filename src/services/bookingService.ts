@@ -3,6 +3,7 @@ import { IServiceRepository } from "../interfaces/serviceInterface";
 import { IUserRepository, PaymentResponse } from "../interfaces/userInterfaces";
 import { IBooking } from "../models/bookingModel";
 import { bookingRepository } from "../repositories/bookingrepository";
+import { notificationRepository } from "../repositories/notificationRepository";
 import { serviceRepository } from "../repositories/serviceRepository";
 import { UserRepository } from "../repositories/userRepository";
 
@@ -98,23 +99,20 @@ class BookingService implements IBookingService {
         }
     }
 
-    async cancelBooking(bookingId: string): Promise<string> {
+    async cancelBooking(bookingId: string, senderId: string, senderModel: 'User' | 'Employee') {
         try {
             const booking = await this.bookingRepository.getBookingDetails(bookingId);
-            console.log(booking);
             if (!booking) throw new Error('Booking not found');
             if (booking.bookingStatus === 'Completed' || booking.bookingStatus === 'Cancelled') {
                 throw new Error('Booking cannot be cancelled');
             }
             const currentTime = new Date();
             const slotDate = await this.parseBookingDate(booking.date);
-
             const timeDifferenceInHours = (slotDate.getTime() - currentTime.getTime()) / (1000 * 60 * 60);
             let refundAmount = 0;
             console.log('details-->', currentTime, booking.date, slotDate, timeDifferenceInHours);
-
             if (timeDifferenceInHours > 24) {
-                refundAmount = booking.totalAmount - 50;
+                refundAmount = senderModel === 'User' ? booking.totalAmount - 50 : booking.totalAmount;
             } else if (timeDifferenceInHours >= 12 && timeDifferenceInHours <= 24) {
                 refundAmount = 0;
             } else {
@@ -130,6 +128,13 @@ class BookingService implements IBookingService {
                 console.log('wallet', walletCreated);
             }
             await userRepository.changeTimeslotStatus(booking.timeslotId, false);
+            // const recipientId = senderModel === 'User' ? booking.employee : booking.userId;
+            // const recipientModel = senderModel === 'User' ? 'Employee' : 'User';
+            // const message = senderModel === 'User'
+            //     ? `Your timeslot has been cancelled by the user. Booking ID: ${bookingId}.`
+            //     : `Your booking has been cancelled by the employee. Booking ID: ${bookingId}. Refund of ₹${refundAmount} has been processed.`;
+            // const notificationType = 'cancellation';
+            // await notificationRepository.createNotification(senderId, senderModel, recipientId, recipientModel, message, notificationType);
             return `Booking cancelled successfully. Refund of ₹${refundAmount} has been processed.`;
         } catch (error) {
             if (error instanceof Error) {

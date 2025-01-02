@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.setupSocket = void 0;
 const socket_io_1 = require("socket.io");
 const chatRepository_1 = require("../repositories/chatRepository");
+const notificationRepository_1 = require("../repositories/notificationRepository");
 let io;
 const setupSocket = (server) => {
     io = new socket_io_1.Server(server, {
@@ -22,6 +23,17 @@ const setupSocket = (server) => {
     });
     io.on("connection", (socket) => {
         console.log("User connected:", socket.id);
+        socket.on('notification', (data) => __awaiter(void 0, void 0, void 0, function* () {
+            console.log('Notification received:', data);
+            const { senderId, senderModel, recipientId, recipientModel, message, type, orderId } = data;
+            try {
+                const savedNotification = yield notificationRepository_1.notificationRepository.createNotification(senderId, senderModel, recipientId, recipientModel, message, type, orderId);
+                io.to(recipientId).emit('gotNotification', savedNotification);
+            }
+            catch (error) {
+                console.error('Error saving notification:', error);
+            }
+        }));
         socket.on("joinChat", (chatId) => {
             socket.join(chatId);
         });

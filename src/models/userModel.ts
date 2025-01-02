@@ -3,16 +3,18 @@ import mongoose from "mongoose";
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export interface IUser extends Document {
-    _id:string,
+    _id: string,
     name: string;
     email: string;
     password: string;
-    phone : number;
-    status : boolean;
+    phone: number;
+    status: boolean;
+    role: string;
+    refreshToken: string;
     is_verified: boolean;
     isAdmin: boolean;
-  }
-  
+}
+
 
 const userSchema = new mongoose.Schema(
     {
@@ -37,7 +39,16 @@ const userSchema = new mongoose.Schema(
         status: {
             type: String,
             enum: ["active", "blocked"],
-          },
+        },
+        role: {
+            type: String,
+            enum: ['Admin', 'User'],
+            default: 'User'
+        },
+        refreshToken: {
+            type: String,
+            default: null
+        },
         isAdmin: {
             type: Boolean,
             default: false,

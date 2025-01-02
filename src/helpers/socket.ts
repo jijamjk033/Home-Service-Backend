@@ -15,6 +15,19 @@ export const setupSocket = (server: HttpServer) => {
 
     io.on("connection", (socket) => {
         console.log("User connected:", socket.id);
+
+        socket.on('notification', async (data) => {
+            console.log('Notification received:', data);
+            const { senderId, senderModel, recipientId, recipientModel, message, type, orderId } = data;
+
+            try {
+                const savedNotification = await notificationRepository.createNotification(senderId, senderModel, recipientId, recipientModel, message, type, orderId);
+                io.to(recipientId).emit('gotNotification', savedNotification);
+            } catch (error) {
+                console.error('Error saving notification:', error);
+            }
+        });
+
         socket.on("joinChat", (chatId) => {
             socket.join(chatId);
         });

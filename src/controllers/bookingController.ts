@@ -72,10 +72,13 @@ class BookingController implements IBookingController {
             });
         }
     }
+    
     async cancelBooking(req: Request, res: Response) {
         try {
             const bookingId = req.params.id;
-            const result = await bookingService.cancelBooking(bookingId);
+            const senderId = req.body.data.senderId;
+            const senderModel = req.body.data.senderModel;
+            const result = await bookingService.cancelBooking(bookingId, senderId, senderModel);
             res.status(StatusCodes.OK).json({
                 status: 'Success',
                 data: result,

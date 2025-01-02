@@ -44,6 +44,7 @@ export interface IUserService {
 
 export interface IUserRepository {
     createUser(userData: IUser): Promise<IUser>;
+    updateUser(userId: string, updateData: Partial<IUser>):Promise<IUser | null>;
     createWallet(userId: string): Promise<void>;
     findUserByEmail(email: string): Promise<IUser>;
     findUserById(userId: string): Promise<IUser>;
