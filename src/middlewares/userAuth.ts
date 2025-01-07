@@ -32,7 +32,8 @@ class AuthMiddleware {
 
   public verifyToken = async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers['authorization']?.split(' ')[1];
-
+    console.log("calling",req.headers ?? "un")
+    console.log("token",token ?? "un")
     if (!token) {
       return res.status(401).send('Access Denied: No Token Provided!');
     }

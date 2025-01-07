@@ -21,8 +21,10 @@ const jwtSecret = process.env.JWT_SECRET || 'myjwtsecret';
 class AuthMiddleware {
     constructor(jwtSecret, userRepository) {
         this.verifyToken = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
-            var _a;
+            var _a, _b;
             const token = (_a = req.headers['authorization']) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
+            console.log("calling", (_b = req.headers) !== null && _b !== void 0 ? _b : "un");
+            console.log("token", token !== null && token !== void 0 ? token : "un");
             if (!token) {
                 return res.status(401).send('Access Denied: No Token Provided!');
             }

@@ -22,7 +22,7 @@ class NotificationRepository {
 
     async findNotificationsById(id: string) {
         try {
-            const notifications = await Notification.find({ recipientId: id }).sort({ createdAt: -1 }).exec();
+            const notifications = await Notification.find({ recipientId: id }).sort({ timestamp: -1 }).exec();
             return notifications;
         } catch (err) {
             if (err instanceof Error) {

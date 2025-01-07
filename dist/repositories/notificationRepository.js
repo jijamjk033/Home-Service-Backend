@@ -35,7 +35,7 @@ class NotificationRepository {
     findNotificationsById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const notifications = yield notification_1.Notification.find({ recipientId: id }).sort({ createdAt: -1 }).exec();
+                const notifications = yield notification_1.Notification.find({ recipientId: id }).sort({ timestamp: -1 }).exec();
                 return notifications;
             }
             catch (err) {

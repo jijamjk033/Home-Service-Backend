@@ -194,6 +194,17 @@ class BookingRepository implements IBookingRepository {
                 },
                 {
                     $lookup: {
+                        from: 'users',
+                        localField: 'userId',
+                        foreignField: '_id',
+                        as: 'userDetails',
+                    },
+                },
+                {
+                    $unwind: { path: '$userDetails', preserveNullAndEmptyArrays: true },
+                },
+                {
+                    $lookup: {
                         from: 'employees',
                         localField: 'timeslotDetails.employeeId',
                         foreignField: '_id',
@@ -250,6 +261,7 @@ class BookingRepository implements IBookingRepository {
                     $project: {
                         _id: 1,
                         employee: '$employeeDetails.name',
+                        employeeId:'$employeeDetails._id',
                         date: '$formattedDate',
                         service: '$serviceDetails.name',
                         serviceImage: '$serviceDetails.image',
@@ -260,6 +272,7 @@ class BookingRepository implements IBookingRepository {
                         bookingStatus: 1,
                         timeslotId: 1,
                         userId: 1,
+                        userName:'$userDetails.name',
                         completed: 1,
                         address: {
                             line1: '$addressDetails.addressLine1',

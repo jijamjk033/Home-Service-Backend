@@ -15,14 +15,20 @@ export const setupSocket = (server: HttpServer) => {
 
     io.on("connection", (socket) => {
         console.log("User connected:", socket.id);
-
+        
         socket.on('notification', async (data) => {
-            console.log('Notification received:', data);
+            if (!data || !data.senderId || !data.recipientId || !data.message || !data.type) {
+                console.error('Invalid notification data:', data);
+                socket.emit('error', 'Invalid notification data');
+                return;
+            }
             const { senderId, senderModel, recipientId, recipientModel, message, type, orderId } = data;
-
             try {
-                const savedNotification = await notificationRepository.createNotification(senderId, senderModel, recipientId, recipientModel, message, type, orderId);
+                const savedNotification = await notificationRepository.createNotification(
+                    senderId, senderModel, recipientId, recipientModel, message, type, orderId
+                );
                 io.to(recipientId).emit('gotNotification', savedNotification);
+                console.log(`Notification sent to recipient: ${recipientId} (Socket ID: ${recipientId})`);
             } catch (error) {
                 console.error('Error saving notification:', error);
             }
@@ -52,7 +58,8 @@ export const setupSocket = (server: HttpServer) => {
         });
 
         socket.on("disconnect", () => {
-            console.log("User disconnected:", socket.id);
+            console.log('User disconnected:',socket.id )
         });
+        
     });
 }

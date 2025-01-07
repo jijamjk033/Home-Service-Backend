@@ -91,9 +91,8 @@ class BookingController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const bookingId = req.params.id;
-                const senderId = req.body.data.senderId;
-                const senderModel = req.body.data.senderModel;
-                const result = yield bookingService_1.bookingService.cancelBooking(bookingId, senderId, senderModel);
+                const { recipientId, senderModel } = req.body;
+                const result = yield bookingService_1.bookingService.cancelBooking(bookingId, recipientId, senderModel);
                 res.status(http_status_codes_1.StatusCodes.OK).json({
                     status: 'Success',
                     data: result,

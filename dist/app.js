@@ -26,6 +26,7 @@ const corsOption = {
 };
 app.use((0, cors_1.default)(corsOption));
 app.use(morgan_1.default);
+// app.use(authMiddleware.verifyToken)
 app.use('/api/admin', adminRoutes_1.default);
 app.use('/api/user', userRoutes_1.default);
 app.use('/api/employee', employeeRoutes_1.default);

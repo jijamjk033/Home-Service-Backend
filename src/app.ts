@@ -10,6 +10,7 @@ import { setupSocket } from './helpers/socket';
 import chatRoutes from './routes/chatRoutes';
 import notificationRoutes from './routes/notificationRoutes';
 import morganMiddleware from './middlewares/morgan';
+import { authMiddleware } from './middlewares/userAuth';
 
 const PORT = process.env.PORT || 5000;
 

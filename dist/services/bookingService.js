@@ -112,7 +112,7 @@ class BookingService {
             }
         });
     }
-    cancelBooking(bookingId, senderId, senderModel) {
+    cancelBooking(bookingId, recipientId, senderModel) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const booking = yield this.bookingRepository.getBookingDetails(bookingId);
@@ -125,7 +125,6 @@ class BookingService {
                 const slotDate = yield this.parseBookingDate(booking.date);
                 const timeDifferenceInHours = (slotDate.getTime() - currentTime.getTime()) / (1000 * 60 * 60);
                 let refundAmount = 0;
-                console.log('details-->', currentTime, booking.date, slotDate, timeDifferenceInHours);
                 if (timeDifferenceInHours > 24) {
                     refundAmount = senderModel === 'User' ? booking.totalAmount - 50 : booking.totalAmount;
                 }

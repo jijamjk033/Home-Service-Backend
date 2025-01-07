@@ -14,7 +14,6 @@ export class UserService implements IUserService{
     constructor(userRepository: IUserRepository) {
         this.userRepository = userRepository;
     }
-
     async signup(userData: IUser) {
         const existingUser = await this.userRepository.findUserByEmail(userData.email);
         if (existingUser) {

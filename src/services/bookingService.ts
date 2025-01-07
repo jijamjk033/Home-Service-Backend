@@ -99,7 +99,7 @@ class BookingService implements IBookingService {
         }
     }
 
-    async cancelBooking(bookingId: string, senderId: string, senderModel: 'User' | 'Employee') {
+    async cancelBooking(bookingId: string, recipientId: string, senderModel: 'User' | 'Employee') {
         try {
             const booking = await this.bookingRepository.getBookingDetails(bookingId);
             if (!booking) throw new Error('Booking not found');
@@ -110,7 +110,6 @@ class BookingService implements IBookingService {
             const slotDate = await this.parseBookingDate(booking.date);
             const timeDifferenceInHours = (slotDate.getTime() - currentTime.getTime()) / (1000 * 60 * 60);
             let refundAmount = 0;
-            console.log('details-->', currentTime, booking.date, slotDate, timeDifferenceInHours);
             if (timeDifferenceInHours > 24) {
                 refundAmount = senderModel === 'User' ? booking.totalAmount - 50 : booking.totalAmount;
             } else if (timeDifferenceInHours >= 12 && timeDifferenceInHours <= 24) {
