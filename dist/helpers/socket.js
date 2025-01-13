@@ -21,7 +21,7 @@ const setupSocket = (server) => {
             methods: ["GET", "POST"]
         }
     });
-    io.on("connection", (socket) => {
+    io.on("connect", (socket) => {
         console.log("User connected:", socket.id);
         socket.on('notification', (data) => __awaiter(void 0, void 0, void 0, function* () {
             if (!data || !data.senderId || !data.recipientId || !data.message || !data.type) {
