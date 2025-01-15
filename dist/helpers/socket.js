@@ -14,6 +14,7 @@ const socket_io_1 = require("socket.io");
 const chatRepository_1 = require("../repositories/chatRepository");
 const notificationRepository_1 = require("../repositories/notificationRepository");
 let io;
+const userSocketMap = new Map();
 const setupSocket = (server) => {
     io = new socket_io_1.Server(server, {
         cors: {
@@ -23,6 +24,10 @@ const setupSocket = (server) => {
     });
     io.on("connect", (socket) => {
         console.log("User connected:", socket.id);
+        socket.on("register", (userId) => {
+            userSocketMap.set(userId, socket.id);
+            console.log(`User registered: ${userId} -> Socket ID: ${socket.id}`);
+        });
         socket.on('notification', (data) => __awaiter(void 0, void 0, void 0, function* () {
             if (!data || !data.senderId || !data.recipientId || !data.message || !data.type) {
                 console.error('Invalid notification data:', data);
@@ -32,8 +37,14 @@ const setupSocket = (server) => {
             const { senderId, senderModel, recipientId, recipientModel, message, type, orderId } = data;
             try {
                 const savedNotification = yield notificationRepository_1.notificationRepository.createNotification(senderId, senderModel, recipientId, recipientModel, message, type, orderId);
-                io.to(recipientId).emit('gotNotification', savedNotification);
-                console.log(`Notification sent to recipient: ${recipientId} (Socket ID: ${recipientId})`);
+                const recipientSocketId = userSocketMap.get(recipientId);
+                if (recipientSocketId) {
+                    io.to(recipientSocketId).emit('gotNotification', savedNotification);
+                    console.log(`Notification sent to recipient: ${recipientId} (Socket ID: ${recipientSocketId})`);
+                }
+                else {
+                    console.log(`Recipient ${recipientId} is not connected`);
+                }
             }
             catch (error) {
                 console.error('Error saving notification:', error);
@@ -62,7 +73,13 @@ const setupSocket = (server) => {
             }
         }));
         socket.on("disconnect", () => {
-            console.log('User disconnected:', socket.id);
+            for (let [userId, socketId] of userSocketMap.entries()) {
+                if (socketId === socket.id) {
+                    userSocketMap.delete(userId);
+                    console.log(`User disconnected: ${userId}`);
+                    break;
+                }
+            }
         });
     });
 };

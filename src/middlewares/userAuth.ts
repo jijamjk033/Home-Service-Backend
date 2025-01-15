@@ -32,16 +32,12 @@ class AuthMiddleware {
 
   public verifyToken = async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers['authorization']?.split(' ')[1];
-    console.log("calling",req.headers ?? "un")
-    console.log("token",token ?? "un")
     if (!token) {
       return res.status(401).send('Access Denied: No Token Provided!');
     }
-
     try {
       const decoded = jwt.verify(token, this.jwtSecret) as JwtPayload;
       const userData = await this.userRepository.findUserByEmail(decoded.email);
-
       if (userData?.is_verified === false) {
         return res.status(401).send('Access Denied: You Are Blocked By Admin!');
       }
@@ -55,12 +51,35 @@ class AuthMiddleware {
       res.status(400).send('Invalid Token');
     }
   };
+
   public checkRole = (roles: string[]) => {
     return (req: Request, res: Response, next: NextFunction) => {
+      console.log('Data from middleware-->',req.user,roles);
       if (!req.user || !roles.includes(req.user.role)) {
         return res.status(403).send('Access Denied: Insufficient Permissions!');
       }
       next();
+    };
+  };
+
+  public checkAuthorization = (requiredRoles: string[] = []) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const token = req.headers['authorization']?.split(' ')[1];
+        console.log('roles',requiredRoles,token);
+        if (!token) {
+          return res.status(401).json({ message: 'Access Denied: No Token Provided!' });
+        }
+        const decoded = jwt.verify(token, this.jwtSecret) as JwtPayload;
+        console.log('decoded data-->',decoded);
+        if (requiredRoles.length && !requiredRoles.includes(decoded.role)) {
+          return res.status(403).json({ message: 'Access Denied: Insufficient Permissions!' });
+        }
+        req.user = decoded;
+        next(); 
+      } catch (error) {
+        return res.status(400).json({ message: 'Invalid Token!' });
+      }
     };
   };
 }

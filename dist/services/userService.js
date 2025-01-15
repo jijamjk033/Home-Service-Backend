@@ -122,7 +122,7 @@ class UserService {
             if (user.isAdmin) {
                 throw new Error('Not a user');
             }
-            const token = jsonwebtoken_1.default.sign({ email: user.email, id: user._id }, JWT_SECRET, { expiresIn: '10h' });
+            const token = jsonwebtoken_1.default.sign({ email: user.email, id: user._id, role: 'user' }, JWT_SECRET, { expiresIn: '10h' });
             const refreshToken = jsonwebtoken_1.default.sign({ email: user.email, id: user._id }, JWT_REFRESH_SECRET, { expiresIn: '7d' });
             yield this.userRepository.updateUser(user._id, { refreshToken: refreshToken });
             return {

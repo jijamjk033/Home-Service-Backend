@@ -30,7 +30,7 @@ class AdminService implements IAdminService {
             throw new Error('Not an Admin')
         }
 
-        const token = jwt.sign({ email: admin.email, id: admin._id }, JWT_SECRET, { expiresIn: '10h' });
+        const token = jwt.sign({ email: admin.email, id: admin._id, role: 'admin' }, JWT_SECRET, { expiresIn: '10h' });
         return { token, admin: { email: admin.email, id: admin._id, username: admin.name }, message: 'Admin login successfull' }
     }
 

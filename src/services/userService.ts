@@ -105,7 +105,7 @@ export class UserService implements IUserService{
         if (user.isAdmin) {
             throw new Error('Not a user')
         }
-        const token = jwt.sign({ email: user.email, id: user._id }, JWT_SECRET, { expiresIn: '10h' });
+        const token = jwt.sign({ email: user.email, id: user._id,role: 'user' }, JWT_SECRET, { expiresIn: '10h' });
         const refreshToken = jwt.sign(
             { email: user.email, id: user._id },
             JWT_REFRESH_SECRET,

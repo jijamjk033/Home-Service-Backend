@@ -21,10 +21,8 @@ const jwtSecret = process.env.JWT_SECRET || 'myjwtsecret';
 class AuthMiddleware {
     constructor(jwtSecret, userRepository) {
         this.verifyToken = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
-            var _a, _b;
+            var _a;
             const token = (_a = req.headers['authorization']) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
-            console.log("calling", (_b = req.headers) !== null && _b !== void 0 ? _b : "un");
-            console.log("token", token !== null && token !== void 0 ? token : "un");
             if (!token) {
                 return res.status(401).send('Access Denied: No Token Provided!');
             }
@@ -48,10 +46,33 @@ class AuthMiddleware {
         });
         this.checkRole = (roles) => {
             return (req, res, next) => {
+                console.log('Data from middleware-->', req.user, roles);
                 if (!req.user || !roles.includes(req.user.role)) {
                     return res.status(403).send('Access Denied: Insufficient Permissions!');
                 }
                 next();
+            };
+        };
+        this.checkAuthorization = (requiredRoles = []) => {
+            return (req, res, next) => {
+                var _a;
+                try {
+                    const token = (_a = req.headers['authorization']) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
+                    console.log('roles', requiredRoles, token);
+                    if (!token) {
+                        return res.status(401).json({ message: 'Access Denied: No Token Provided!' });
+                    }
+                    const decoded = jsonwebtoken_1.default.verify(token, this.jwtSecret);
+                    console.log('decoded data-->', decoded);
+                    if (requiredRoles.length && !requiredRoles.includes(decoded.role)) {
+                        return res.status(403).json({ message: 'Access Denied: Insufficient Permissions!' });
+                    }
+                    req.user = decoded;
+                    next();
+                }
+                catch (error) {
+                    return res.status(400).json({ message: 'Invalid Token!' });
+                }
             };
         };
         this.jwtSecret = jwtSecret;

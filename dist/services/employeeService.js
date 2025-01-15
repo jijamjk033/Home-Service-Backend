@@ -106,7 +106,7 @@ class EmployeeService {
             if (!employee.is_verified) {
                 throw new Error('Employee is not verified');
             }
-            const token = jsonwebtoken_1.default.sign({ email: employee.email, id: employee._id }, JWT_SECRET, { expiresIn: '10h' });
+            const token = jsonwebtoken_1.default.sign({ email: employee.email, id: employee._id, role: 'employee' }, JWT_SECRET, { expiresIn: '10h' });
             return {
                 token, employee: { email: employee.email, id: employee._id, employeeName: employee.name, is_done: employee.is_verified },
                 message: 'Employee login successful'
