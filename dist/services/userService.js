@@ -131,6 +131,22 @@ class UserService {
             };
         });
     }
+    refreshAccessToken(refreshToken) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const decoded = jsonwebtoken_1.default.verify(refreshToken, JWT_REFRESH_SECRET);
+                const user = yield this.userRepository.findUserById(decoded.id);
+                if (!user || user.refreshToken !== refreshToken) {
+                    throw new Error('Invalid refresh token');
+                }
+                const newAccessToken = jsonwebtoken_1.default.sign({ email: user.email, id: user._id, role: 'user' }, JWT_SECRET, { expiresIn: '10h' });
+                return { accessToken: newAccessToken };
+            }
+            catch (error) {
+                throw new Error('Could not refresh token: ');
+            }
+        });
+    }
     getUserTransactions(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {

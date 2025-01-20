@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import { otpService } from "../helpers/otpService";
 import { StatusCodes } from 'http-status-codes';
 import { IUserRepository, IUserService } from '../interfaces/userInterfaces';
@@ -118,6 +118,24 @@ export class UserService implements IUserService{
         }
     }
 
+    async refreshAccessToken(refreshToken: string) {
+        try {
+            const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET) as JwtPayload;
+            const user = await this.userRepository.findUserById(decoded.id);
+            if (!user || user.refreshToken !== refreshToken) {
+                throw new Error('Invalid refresh token');
+            }
+            const newAccessToken = jwt.sign(
+                { email: user.email, id: user._id, role: 'user'},
+                JWT_SECRET,
+                { expiresIn: '10h' }
+            );
+            return { accessToken: newAccessToken };
+        } catch (error) {
+            throw new Error('Could not refresh token: ');
+        }
+    }
+    
     async getUserTransactions(userId: string){
         try{
             return await this.userRepository.getUserTransactions(userId);
@@ -126,5 +144,4 @@ export class UserService implements IUserService{
             throw new Error('Error fetching transactions')
         }
     }
-
 }

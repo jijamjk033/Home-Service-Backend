@@ -54,7 +54,7 @@ class AuthMiddleware {
 
   public checkRole = (roles: string[]) => {
     return (req: Request, res: Response, next: NextFunction) => {
-      console.log('Data from middleware-->',req.user,roles);
+      console.log('Data from middleware-->', req.user, roles);
       if (!req.user || !roles.includes(req.user.role)) {
         return res.status(403).send('Access Denied: Insufficient Permissions!');
       }
@@ -65,20 +65,22 @@ class AuthMiddleware {
   public checkAuthorization = (requiredRoles: string[] = []) => {
     return (req: Request, res: Response, next: NextFunction) => {
       try {
-        const token = req.headers['authorization']?.split(' ')[1];
-        console.log('roles',requiredRoles,token);
-        if (!token) {
-          return res.status(401).json({ message: 'Access Denied: No Token Provided!' });
+        const authHeader = req.headers['authorization'];
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+          return res.status(401).json({ message: 'Access Denied: Invalid Authorization Header!' });
         }
+        const token = authHeader.split(' ')[1];
         const decoded = jwt.verify(token, this.jwtSecret) as JwtPayload;
-        console.log('decoded data-->',decoded);
+        if (!decoded || typeof decoded.role !== 'string') {
+          return res.status(400).json({ message: 'Access Denied: Invalid Token Payload!' });
+        }
         if (requiredRoles.length && !requiredRoles.includes(decoded.role)) {
           return res.status(403).json({ message: 'Access Denied: Insufficient Permissions!' });
         }
         req.user = decoded;
-        next(); 
+        next();
       } catch (error) {
-        return res.status(400).json({ message: 'Invalid Token!' });
+        return res.status(401).json({ message: 'Access Denied: Invalid or Expired Token!' });
       }
     };
   };

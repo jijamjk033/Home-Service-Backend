@@ -10,7 +10,6 @@ const addressService = new AddressService(userRepository);
 class AddressController implements IAddressController{
     async addAddress(req: Request, res: Response) {
         const { address, locality, city, state, pincode, user, typeOfAddress } = req.body;
-
         try {
             const result = await addressService.addAddress(address, locality, city, state, pincode, user, typeOfAddress);
             res.status(StatusCodes.OK).json({

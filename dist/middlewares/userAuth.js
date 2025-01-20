@@ -55,15 +55,16 @@ class AuthMiddleware {
         };
         this.checkAuthorization = (requiredRoles = []) => {
             return (req, res, next) => {
-                var _a;
                 try {
-                    const token = (_a = req.headers['authorization']) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
-                    console.log('roles', requiredRoles, token);
-                    if (!token) {
-                        return res.status(401).json({ message: 'Access Denied: No Token Provided!' });
+                    const authHeader = req.headers['authorization'];
+                    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+                        return res.status(401).json({ message: 'Access Denied: Invalid Authorization Header!' });
                     }
+                    const token = authHeader.split(' ')[1];
                     const decoded = jsonwebtoken_1.default.verify(token, this.jwtSecret);
-                    console.log('decoded data-->', decoded);
+                    if (!decoded || typeof decoded.role !== 'string') {
+                        return res.status(400).json({ message: 'Access Denied: Invalid Token Payload!' });
+                    }
                     if (requiredRoles.length && !requiredRoles.includes(decoded.role)) {
                         return res.status(403).json({ message: 'Access Denied: Insufficient Permissions!' });
                     }
@@ -71,7 +72,7 @@ class AuthMiddleware {
                     next();
                 }
                 catch (error) {
-                    return res.status(400).json({ message: 'Invalid Token!' });
+                    return res.status(401).json({ message: 'Access Denied: Invalid or Expired Token!' });
                 }
             };
         };
