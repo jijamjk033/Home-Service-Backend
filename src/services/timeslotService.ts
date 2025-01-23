@@ -61,7 +61,6 @@ export class TimeslotService implements ITimeslotService{
             while (currentHour < endHour) {
                 const timeSlot = `${date} ${this.formatTime(currentHour)} - ${this.formatTime(currentHour + 1)}`;
                 const exists = await  this.employeeRepository .findSlot(employeeId, date, this.formatTime(currentHour), this.formatTime(currentHour + 1));
-
                 if (!exists) {
                     await  this.employeeRepository .newTimeslot(employeeId, date, this.formatTime(currentHour), this.formatTime(currentHour + 1));
                     slots.push(timeSlot);
@@ -69,7 +68,6 @@ export class TimeslotService implements ITimeslotService{
                 currentHour++;
             }
         }
-
         return slots;
     }
 

@@ -9,7 +9,7 @@ const userSocketMap = new Map();
 export const setupSocket = (server: HttpServer) => {
     io = new Server(server, {
         cors: {
-            origin: 'http://localhost:4200',
+            origin: process.env.Frontend_URL,
             methods: ["GET", "POST"]
         }
     });
