@@ -28,7 +28,6 @@ const corsOption = {
 
 app.use(cors(corsOption));
 app.use(morganMiddleware);
-
 app.use('/api/admin', adminRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/employee', employeeRoutes);
