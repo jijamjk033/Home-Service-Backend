@@ -16,8 +16,9 @@ export class UserService implements IUserService{
     }
 
     async signup(userData: IUser) {
-        
         const existingUser = await this.userRepository.findUserByEmail(userData.email);
+        console.log('exits or not',existingUser);
+        
         if (existingUser) {
             return { status: StatusCodes.BAD_REQUEST, message: 'This user already exists' };
         }
