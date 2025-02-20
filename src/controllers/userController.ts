@@ -25,15 +25,12 @@ class UserController implements IUserController {
     }
 
     async verifyOtp(req: Request, res: Response) {
-
         const { otp, token } = req.body;
-
         try {
             if (!token) {
                 throw new Error('JWT token must be provided');
             }
             const result = await userService.verifyOtp(token, otp);
-
             res.status(StatusCodes.OK).json(createSuccessResponse(result));
         } catch (err) {
             if (err instanceof Error) {
@@ -46,11 +43,9 @@ class UserController implements IUserController {
 
     async resendOtp(req: Request, res: Response) {
         const { email } = req.body;
-
         if (!email) {
             res.status(StatusCodes.BAD_REQUEST).json(createErrorResponse('Email must be provided'));
         }
-
         try {
             const result = await userService.resendOtp(email);
             res.status(StatusCodes.OK).json(createSuccessResponse(result));
@@ -77,7 +72,6 @@ class UserController implements IUserController {
         try {
             const userid = req.params.id;
             const userDetails = await userService.getUserDetails(userid);
-            console.log(userDetails);
             res.status(StatusCodes.OK).json(createSuccessResponse(userDetails));
         } catch (error) {
             if (error instanceof Error) {

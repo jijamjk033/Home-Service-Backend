@@ -14,17 +14,17 @@ export class UserService implements IUserService{
     constructor(userRepository: IUserRepository) {
         this.userRepository = userRepository;
     }
+
     async signup(userData: IUser) {
+        
         const existingUser = await this.userRepository.findUserByEmail(userData.email);
         if (existingUser) {
             return { status: StatusCodes.BAD_REQUEST, message: 'This user already exists' };
         }
         const salt = await bcrypt.genSalt(10);
         userData.password = await bcrypt.hash(userData.password, salt);
-
         const user = await this.userRepository.createUser({ ...userData, is_verified: false });
-        await this.userRepository.createWallet(userData._id);
-
+        await this.userRepository.createWallet(user._id);
         const otp = this.generateOtp();
         await otpService.sendOtp(user.email, otp);
         console.log(otp, ': is your OTP');
@@ -105,7 +105,7 @@ export class UserService implements IUserService{
         if (user.isAdmin) {
             throw new Error('Not a user')
         }
-        const token = jwt.sign({ email: user.email, id: user._id,role: 'user' }, JWT_SECRET, { expiresIn: '10h' });
+        const token = jwt.sign({ email: user.email, id: user._id, role: 'user' }, JWT_SECRET, { expiresIn: '10h' });
         const refreshToken = jwt.sign(
             { email: user.email, id: user._id },
             JWT_REFRESH_SECRET,
@@ -113,7 +113,7 @@ export class UserService implements IUserService{
         );
         await this.userRepository.updateUser(user._id, { refreshToken: refreshToken });
         return {
-            token, refreshToken, user: { email: user.email, id: user._id, username: user.name, is_done: user.is_verified },
+            token, refreshToken, user: { email: user.email, id: user._id, username: user.name, is_done: user.is_verified, role: 'user' },
             message: 'Login successful'
         }
     }

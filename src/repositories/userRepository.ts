@@ -8,9 +8,16 @@ import { ITransaction, Wallet } from "../models/walletModel";
 export class UserRepository implements IUserRepository {
 
     async createUser(userData: IUser) {
-        const user = new User(userData);
-        const savedUser = await user.save();
-        return savedUser.toObject() as unknown as IUser;
+        try {
+            const user = new User(userData);
+            const savedUser = await user.save();
+            console.log('Saved user:', savedUser);
+            return savedUser.toObject() as unknown as IUser;
+        } catch (error) {
+            console.error('Error creating user:', error);
+            throw error;
+        }
+
     }
 
     async updateUser(userId: string, updateData: Partial<IUser>) {
@@ -24,7 +31,7 @@ export class UserRepository implements IUserRepository {
         }
         return updatedUser.toObject() as unknown as IUser;
     }
-    
+
 
     async createWallet(userId: string) {
         const wallet = new Wallet({
@@ -36,15 +43,15 @@ export class UserRepository implements IUserRepository {
         await wallet.save();
     }
 
-    async getUserTransactions(userId: string){
-        try{
-            const transactions = Wallet.findOne({user: userId}).lean();
+    async getUserTransactions(userId: string) {
+        try {
+            const transactions = Wallet.findOne({ user: userId }).lean();
             return transactions as unknown as ITransaction;
-        }catch(error){
+        } catch (error) {
             throw new Error('Error fetching transactions')
         }
     }
-    
+
     async addTransactionToWallet(userId: string, amount: number, type: 'credit' | 'debit') {
         try {
             let wallet = await Wallet.findOne({ user: userId });
@@ -96,7 +103,6 @@ export class UserRepository implements IUserRepository {
 
     async updateUserVerificationStatus(email: string, is_verified: boolean) {
         const statusUpdate = is_verified ? 'active' : 'inactive';
-
         await User.updateOne(
             { email },
             { is_verified, status: statusUpdate }
