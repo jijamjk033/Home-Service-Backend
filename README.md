@@ -1,8 +1,8 @@
-🛠️ Home Service App – Backend
+## 🛠️ Home Service App – Backend
 
 This is the backend server for the Home Service Booking platform, developed using Node.js, Express.js, and MongoDB. It provides RESTful APIs for user registration, authentication, service booking, employee management, and more.
 
-⚙️ Features
+## ⚙️ Features
 
 User and employee registration/login with JWT authentication
 
@@ -20,7 +20,7 @@ Email notifications using Nodemailer
 
 Image upload support (via Multer)
 
-🧰 Tech Stack
+## 🧰 Tech Stack
 
 Backend: Node.js, Express.js
 
@@ -38,7 +38,7 @@ nodemailer for sending emails
 
 twilio (or equivalent) for OTP handling
 
-🔧 Setup Instructions
+## 🔧 Setup Instructions
 
 Clone the repository
 git clone https://github.com/yourusername/homeservice-backend.git
