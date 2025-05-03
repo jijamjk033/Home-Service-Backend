@@ -2,6 +2,8 @@
 
 This is the backend server for the Home Service Booking platform, developed using Node.js, Express.js, and MongoDB. It provides RESTful APIs for user registration, authentication, service booking, employee management, and more.
 
+The project is live and available: https://www.homeserviceapp.site/ 
+
 ## ⚙️ Features
 
 User and employee registration/login with JWT authentication
@@ -41,13 +43,16 @@ twilio (or equivalent) for OTP handling
 ## 🔧 Setup Instructions
 
 Clone the repository
+
 git clone https://github.com/yourusername/homeservice-backend.git
 cd homeservice-backend
 
 Install dependencies
+
 npm install
 
 Create a .env file with the following:
+
 env
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
