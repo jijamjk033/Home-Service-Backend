@@ -17,8 +17,6 @@ export class UserService implements IUserService{
 
     async signup(userData: IUser) {
         const existingUser = await this.userRepository.findUserByEmail(userData.email);
-        console.log('exits or not',existingUser);
-        
         if (existingUser) {
             return { status: StatusCodes.BAD_REQUEST, message: 'This user already exists' };
         }
@@ -28,6 +26,7 @@ export class UserService implements IUserService{
         await this.userRepository.createWallet(user._id);
         const otp = this.generateOtp();
         await otpService.sendOtp(user.email, otp);
+        console.log('User details',user);
         console.log(otp, ': is your OTP');
         const otpToken = jwt.sign({ email: user.email, otp }, JWT_SECRET, { expiresIn: OTP_EXPIRY_TIME });
         return { message: 'Otp sent to your email', otpToken };

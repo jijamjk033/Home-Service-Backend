@@ -20,7 +20,6 @@ class ImageUpload {
                     crop: 'fill'
                 }
             };
-
             const uploadedImage = await cloudinary.uploader.upload(filePath, uploadOptions);
             return uploadedImage.secure_url;
         } catch (error) {

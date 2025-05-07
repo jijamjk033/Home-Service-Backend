@@ -9,11 +9,8 @@ export class UserRepository implements IUserRepository {
 
     async createUser(userData: IUser) {
         try {
-            console.log('Creating user:', userData);
-            
             const user = new User(userData);
             const savedUser = await user.save();
-            console.log('Saved user:', savedUser);
             return savedUser.toObject() as unknown as IUser;
         } catch (error) {
             console.error('Error creating user:', error);

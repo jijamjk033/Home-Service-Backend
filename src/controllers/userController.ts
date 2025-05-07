@@ -13,7 +13,8 @@ class UserController implements IUserController {
     async signup(req: any, res: any) {
         try {
             const result = await userService.signup(req.body);
-            res.status(StatusCodes.OK).json(createSuccessResponse(result));
+            console.log('Signup result:', result);
+            res.status(StatusCodes.OK).json(createSuccessResponse({ otpToken: result.otpToken, message: 'Otp sent to your email' }));
         } catch (err) {
             console.error("Signup error:", err);
             if (err instanceof Error) {
